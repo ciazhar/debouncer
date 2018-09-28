@@ -28,10 +28,12 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
         println("Initialize Router...")
         val router = Router.router(vertx)
-        router.get("/").handler(this::getAll)
         router.route("/*").handler(BodyHandler.create())
         router.post("/").handler(this::addOne)
+        router.get("/").handler(this::getAll)
         router.get("/:id").handler(this::getOne)
+        router.put("/").handler(this::updateOne)
+        router.delete("/:id").handler(this::deleteOne)
 
 
         println("Starting HttpServer...")
@@ -92,14 +94,57 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                 if (res.result() == null) {
                     routingContext.response().setStatusCode(404).end()
                 }
-                val dnsbl = Dnsbl(res.result()[0])
-                routingContext.response()
-                        .setStatusCode(200)
-                        .putHeader("content-type", "application/json; charset=utf-8")
-                        .end(Json.encodePrettily(dnsbl))
+                print("size"+res.result().size)
+                if (res.result().size>0){
+                    val dnsbl = Dnsbl(res.result()[0])
+                    routingContext.response()
+                            .setStatusCode(200)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(dnsbl))
+                }else{
+                    routingContext.response()
+                            .setStatusCode(404)
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily("id not found"))
+                }
+
             } else {
                 routingContext.response().setStatusCode(404).end()
             }
+        }
+    }
+
+    private fun updateOne(routingContext: RoutingContext) {
+        val json = routingContext.bodyAsJson
+        if (json == null) {
+            routingContext.response().setStatusCode(400).end()
+        } else {
+            Mongo.update(dnsblCollectionName,
+                    JsonObject().put("_id", json.getString("id")), // Select a unique document
+                    // The update syntax: {$set, the json object containing the fields to update}
+                    JsonObject()
+                            .put("\$set", json)
+            ) { v ->
+                if (v.failed()) {
+                    routingContext.response().setStatusCode(404).end()
+                } else {
+                    val dnsbl = Dnsbl(json)
+                    dnsbl.id=json.getString("id")
+                    routingContext.response()
+                            .putHeader("content-type", "application/json; charset=utf-8")
+                            .end(Json.encodePrettily(dnsbl))
+                }
+            }
+        }
+    }
+
+    private fun deleteOne(routingContext: RoutingContext) {
+        val id = routingContext.request().getParam("id")
+        if (id == null) {
+            routingContext.response().setStatusCode(400).end()
+        } else {
+            Mongo.removeOne(dnsblCollectionName, JsonObject().put("_id", id)
+            ) { routingContext.response().setStatusCode(204).end() }
         }
     }
 }
