@@ -14,6 +14,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.handler.BodyHandler
+import io.vertx.ext.web.handler.StaticHandler
 import java.util.stream.Collectors
 
 
@@ -28,13 +29,23 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
         println("Initialize Router...")
         val router = Router.router(vertx)
-        router.route("/*").handler(BodyHandler.create())
-        router.post("/").handler(this::addOne)
-        router.get("/").handler(this::getAll)
-        router.get("/:id").handler(this::getOne)
-        router.put("/").handler(this::updateOne)
-        router.delete("/:id").handler(this::deleteOne)
 
+        // Bind "/" to our hello message.
+        router.route("/").handler { routingContext ->
+            val response = routingContext.response()
+            response
+                    .putHeader("content-type", "text/html")
+                    .end("<h1>Hello from my first Vert.x 3 application</h1>")
+        }
+
+        router.route("/assets/*").handler(StaticHandler.create("assets"))
+
+        router.route("/api/dnsbl*").handler(BodyHandler.create())
+        router.post("/api/dnsbl").handler(this::addOne)
+        router.get("/api/dnsbl").handler(this::getAll)
+        router.get("/api/dnsbl/:id").handler(this::getOne)
+        router.put("/api/dnsbl").handler(this::updateOne)
+        router.delete("/api/dnsbl/:id").handler(this::deleteOne)
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
