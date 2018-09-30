@@ -5,6 +5,8 @@ import com.ciazhar.domaincheckerservice.extension.logger
 import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.model.Dnsbl
+import com.google.common.io.Resources
+import com.google.gson.Gson
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -15,6 +17,11 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStream
+import java.net.URI
+import java.net.URL
 import java.util.stream.Collectors
 
 
@@ -42,7 +49,7 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
         router.route("/api/dnsbl*").handler(BodyHandler.create())
         router.post("/api/dnsbl").handler(this::addOne)
-        router.get("/api/dnsbl").handler(this::getAll)
+        router.get("/api/dnsbl").handler(this::readJsonFile)
         router.get("/api/dnsbl/:id").handler(this::getOne)
         router.put("/api/dnsbl").handler(this::updateOne)
         router.delete("/api/dnsbl/:id").handler(this::deleteOne)
@@ -66,6 +73,21 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                     startFuture.fail(it)
                 }
         )
+    }
+    var resource = Resources.getResource("dnsbl.json")
+    var dnsblListJson = resource.file
+
+    private fun readJsonFile(routingContext: RoutingContext) {
+        val gson = Gson()
+        val bufferedReader: BufferedReader = File(dnsblListJson).bufferedReader()
+        val inputString = bufferedReader.use { it.readText() }
+
+        val dnsbl = gson.fromJson(inputString, Array<Dnsbl>::class.java)
+
+        routingContext.response()
+                .setStatusCode(201)
+                .putHeader("content-type", "application/json; charset=utf-8")
+                .end(Json.encodePrettily(dnsbl))
     }
 
     private fun addOne(routingContext: RoutingContext) {
