@@ -48,8 +48,8 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
         router.route("/api/dnsbl*").handler(BodyHandler.create())
         router.post("/api/dnsbl").handler(this::addOne)
-        router.get("/api/dnsbl").handler(this::readJsonFile)
-        router.get("/api/dnsbl/:id").handler(this::getOne)
+        router.get("/api/dnsbl").handler(this::getAllFromFile)
+        router.get("/api/dnsbl/:id").handler(this::getOneFromFile)
         router.put("/api/dnsbl").handler(this::updateOne)
         router.delete("/api/dnsbl/:id").handler(this::deleteOne)
 
@@ -80,7 +80,7 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
     var resource = Resources.getResource("dnsbl.json")
     var dnsblListJson = resource.file
 
-    private fun readJsonFile(routingContext: RoutingContext) {
+    private fun getAllFromFile(routingContext: RoutingContext) {
         val gson = Gson()
         val bufferedReader: BufferedReader = File(dnsblListJson).bufferedReader()
         val inputString = bufferedReader.use { it.readText() }
@@ -93,9 +93,32 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                 .end(Json.encodePrettily(dnsbl))
     }
 
+    private fun getOneFromFile(routingContext: RoutingContext) {
+        val id = routingContext.param("id")
+        if (id ==null){
+            routingContext.response().setStatusCode(400).end()
+        }
+
+        val gson = Gson()
+        val bufferedReader: BufferedReader = File(dnsblListJson).bufferedReader()
+        val inputString = bufferedReader.use { it.readText() }
+
+        val dnsbl = gson.fromJson(inputString, Array<Dnsbl>::class.java)
+        dnsbl.forEach {
+            if (it.id==id){
+                routingContext.response()
+                        .setStatusCode(201)
+                        .putHeader("content-type", "application/json; charset=utf-8")
+                        .end(Json.encodePrettily(it))
+            }
+        }
+    }
+
+    private var dnsblCollectionName = "dnsbl"
+
     private fun addOne(routingContext: RoutingContext) {
         val dnsbl = Json.decodeValue(routingContext.bodyAsString,
-                    Dnsbl::class.java)
+                Dnsbl::class.java)
 
         Mongo.insert(dnsblCollectionName, dnsbl?.toJson()) {res ->
             dnsbl.id=res.result()
@@ -105,8 +128,6 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                     .end(Json.encodePrettily(dnsbl))
         }
     }
-
-    private var dnsblCollectionName = "dnsbl"
 
     private fun getAll(routingContext : RoutingContext ) {
         Mongo.find(dnsblCollectionName, JsonObject()) {res ->
