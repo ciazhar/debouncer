@@ -200,12 +200,15 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
     fun scrapDnsbl(routingContext: RoutingContext){
         val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
 
-        val dnsbls : MutableList<String> = mutableListOf()
+        val dnsbls : MutableList<Dnsbl> = mutableListOf()
         doc.select("td[width='33%']").forEach {
-            dnsbls.add(it.select("a").text())
+            dnsbls.add(Dnsbl(
+                    name = it.select("a").text(),
+                    url = "https://www.dnsbl.info"+it.select("a").attr("href"))
+            )
         }
 
-        routingContext.response().setStatusCode(200).end(dnsbls.toString())
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsbls))
     }
 
 }
