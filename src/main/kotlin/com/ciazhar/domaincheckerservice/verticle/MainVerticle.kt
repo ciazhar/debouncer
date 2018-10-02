@@ -21,9 +21,6 @@ import io.vertx.ext.web.handler.StaticHandler
 import org.jsoup.Jsoup
 import java.io.BufferedReader
 import java.io.File
-import java.io.InputStream
-import java.net.URI
-import java.net.URL
 import java.util.stream.Collectors
 
 
@@ -207,6 +204,11 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                     url = "https://www.dnsbl.info"+it.select("a").attr("href"))
             )
         }
+
+        val gson = Gson()
+        val jsonString:String = gson.toJson(dnsbls)
+        val file=File(dnsblListJson)
+        file.writeText(jsonString)
 
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsbls))
     }
