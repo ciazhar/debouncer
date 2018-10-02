@@ -61,6 +61,8 @@ dependencies {
 
     compile 'com.google.code.gson:gson:2.8.1'
 
+    compile 'org.jsoup:jsoup:1.11.3'
+
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
     compile "com.fasterxml.jackson.module:jackson-module-parameter-names:$jacksonVersion"
