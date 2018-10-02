@@ -206,11 +206,20 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
     }
 
     private fun checkDomain(routingContext: RoutingContext) {
+        val gson = Gson()
+        val bufferedReader: BufferedReader = File(dnsblListJson).bufferedReader()
+        val inputString = bufferedReader.use { it.readText() }
+
+        val dnsbl = gson.fromJson(inputString, Array<Dnsbl>::class.java)
+        val dnsblMutabl = dnsbl.map {
+            it.name
+        }.toMutableList()
+
         val domain = routingContext.request().getParam("domain")
         if (domain == null) {
             routingContext.response().setStatusCode(400).end()
         } else {
-            val blockedFrom = DomainChecker.check(domain)
+            val blockedFrom = DomainChecker.check(domain,dnsblMutabl)
             routingContext.response().setStatusCode(200).end(blockedFrom.toString())
         }
     }
