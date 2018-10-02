@@ -4,6 +4,7 @@ package com.ciazhar.domaincheckerservice.verticle
 import com.ciazhar.domaincheckerservice.extension.logger
 import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
 import com.ciazhar.domaincheckerservice.model.Dnsbl
 import com.google.common.io.Resources
 import com.google.gson.Gson
@@ -53,6 +54,8 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         router.get("/api/dnsbl/:id").handler(this::getOne)
         router.put("/api/dnsbl").handler(this::updateOne)
         router.delete("/api/dnsbl/:id").handler(this::deleteOne)
+
+        router.get("/api/check-domain").handler(this::checkDomain)
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
@@ -178,6 +181,16 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         } else {
             Mongo.removeOne(dnsblCollectionName, JsonObject().put("_id", id)
             ) { routingContext.response().setStatusCode(204).end() }
+        }
+    }
+
+    private fun checkDomain(routingContext: RoutingContext) {
+        val domain = routingContext.request().getParam("domain")
+        if (domain == null) {
+            routingContext.response().setStatusCode(400).end()
+        } else {
+            val blockedFrom = DomainChecker.check(domain)
+            routingContext.response().setStatusCode(200).end(blockedFrom.toString())
         }
     }
 }
