@@ -18,6 +18,7 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
+import org.jsoup.Jsoup
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStream
@@ -56,6 +57,8 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         router.delete("/api/dnsbl/:id").handler(this::deleteOne)
 
         router.get("/api/check-domain").handler(this::checkDomain)
+
+        router.get("/api/scrap").handler(this::scrapDnsbl)
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
@@ -193,4 +196,16 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             routingContext.response().setStatusCode(200).end(blockedFrom.toString())
         }
     }
+
+    fun scrapDnsbl(routingContext: RoutingContext){
+        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
+
+        val dnsbls : MutableList<String> = mutableListOf()
+        doc.select("td[width='33%']").forEach {
+            dnsbls.add(it.select("a").text())
+        }
+
+        routingContext.response().setStatusCode(200).end(dnsbls.toString())
+    }
+
 }
