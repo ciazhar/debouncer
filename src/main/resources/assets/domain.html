@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Domain Checker</title>
+
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<style>
+    section {
+        padding: 100px 0;
+        text-align: center;
+    }
+    select.frecuency {
+        border: none;
+        font-style: italic;
+        background-color: transparent;
+        cursor: pointer;
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        -webkit-transition: -webkit-transform .35s ease-in;
+        transition: -webkit-transform .35s ease-in;
+        border-bottom: none;
+    }
+    select.frecuency:focus {
+        outline: none;
+        border-bottom: 5px solid #39b3d7;
+        -webkit-transform: translateY(-5px);
+        transform: translateY(-5px);
+        -webkit-transition: -webkit-transform .35s ease-in;
+        transition: -webkit-transform .35s ease-in;
+    }
+    .free {
+        text-transform: uppercase;
+    }
+    .input-group {
+        margin: 20px auto;
+        width: 100%;
+    }
+    input.btn.btn-lg,
+    input.btn.btn-lg:focus {
+        outline: none;
+        width: 60%;
+        height: 60px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    button.btn {
+        width: 40%;
+        height: 60px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .promise {
+        color: #999;
+    }
+
+</style>
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h1>DNSBL Domain Checkker</h1>
+
+        <p>Check your domain whether it is blocked in DNSBL or not</p>
+    </div>
+    <section>
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <hgroup>
+                    <h1 class="free">Check Your Domain</h1>
+                </hgroup>
+                <div class="well">
+                    <form action="#">
+                        <div class="input-group">
+                            <input class="btn btn-lg" name="domain" id="domain" type="text" placeholder="Your Domain" required>
+                            <button class="btn btn-info btn-lg" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+</body>
+</html>
