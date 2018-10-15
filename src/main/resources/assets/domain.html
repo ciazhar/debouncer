@@ -57,33 +57,78 @@
         color: #999;
     }
 
+    /* Center the loader */
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #39b3d7;
+        border-bottom: 16px solid #39b3d7;
+        width: 120px;
+        height: 120px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
 </style>
 <body>
 <div class="container">
-    <div class="jumbotron">
-        <h1>DNSBL Domain Checkker</h1>
+    <!--<div class="jumbotron">-->
+        <!--<h1>DNSBL Domain Checkker</h1>-->
 
-        <p>Check your domain whether it is blocked in DNSBL or not</p>
-    </div>
+        <!--<p>Check your domain whether it is blocked in DNSBL or not</p>-->
+    <!--</div>-->
     <section>
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <hgroup>
-                    <h1 class="free">Check Your Domain</h1>
+                    <h1>DNSBL Domain Checkker</h1>
+
+                    <p>Check your domain whether it is blocked in DNSBL or not</p>
                 </hgroup>
                 <div class="well">
+                    <h1 id="dnsbl"></h1>
+
                     <form action="#">
                         <div class="input-group">
                             <input class="btn btn-lg" name="domain" id="domain" type="text" placeholder="Your Domain" required>
-                            <button class="btn btn-info btn-lg" type="submit">Submit</button>
+                            <button id="submit" class="btn btn-info btn-lg" type="submit">Submit</button>
                         </div>
                     </form>
+
+                    <h1 id="result"></h1>
                 </div>
             </div>
         </div>
     </section>
 </div>
-
+<script>
+    $('#submit').on("click",function() {
+        var domain = $('#domain').val();
+        var dnsbl;
+        $.getJSON("/api/check-domain?domain="+domain, function (data) {
+            dnsbl = data.toString()
+            console.log(data)
+        });
+        $('#dnsbl').append('<div class="loader"></div>');
+        setTimeout(function() {
+            $('.loader').remove();
+            $("#result").text("RESULT : "+dnsbl);
+        }, 20000);
+    })
+</script>
 
 </body>
 </html>
