@@ -77,6 +77,11 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                 }
         )
     }
+
+    /**
+     * JSON
+     */
+
     var resource = Resources.getResource("dnsbl.json")
     var dnsblListJson = resource.file
 
@@ -113,6 +118,30 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             }
         }
     }
+
+    fun scrapDnsbl(routingContext: RoutingContext){
+        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
+
+        val dnsbls : MutableList<Dnsbl> = mutableListOf()
+        doc.select("td[width='33%']").forEach {
+            dnsbls.add(Dnsbl(
+                    name = it.select("a").text(),
+                    url = "https://www.dnsbl.info"+it.select("a").attr("href"))
+            )
+        }
+
+        val gson = Gson()
+        val jsonString:String = gson.toJson(dnsbls)
+        val file=File(dnsblListJson)
+        file.writeText(jsonString)
+
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsbls))
+    }
+
+
+    /**
+     * MONGODB
+     */
 
     private var dnsblCollectionName = "dnsbl"
 
@@ -205,6 +234,10 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         }
     }
 
+    /**
+     * DOMAIN
+     */
+
     private fun checkDomain(routingContext: RoutingContext) {
         val gson = Gson()
         val bufferedReader: BufferedReader = File(dnsblListJson).bufferedReader()
@@ -223,24 +256,4 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             routingContext.response().setStatusCode(200).end(blockedFrom.toString())
         }
     }
-
-    fun scrapDnsbl(routingContext: RoutingContext){
-        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
-
-        val dnsbls : MutableList<Dnsbl> = mutableListOf()
-        doc.select("td[width='33%']").forEach {
-            dnsbls.add(Dnsbl(
-                    name = it.select("a").text(),
-                    url = "https://www.dnsbl.info"+it.select("a").attr("href"))
-            )
-        }
-
-        val gson = Gson()
-        val jsonString:String = gson.toJson(dnsbls)
-        val file=File(dnsblListJson)
-        file.writeText(jsonString)
-
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsbls))
-    }
-
 }
