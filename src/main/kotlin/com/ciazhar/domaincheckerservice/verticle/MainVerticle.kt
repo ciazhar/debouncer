@@ -6,6 +6,7 @@ import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
 import com.ciazhar.domaincheckerservice.model.Dnsbl
+import com.ciazhar.domaincheckerservice.model.DnsblCsv
 import com.google.common.io.Resources
 import com.google.gson.Gson
 import io.vertx.core.AbstractVerticle
@@ -19,8 +20,8 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 import org.jsoup.Jsoup
-import java.io.BufferedReader
-import java.io.File
+import java.io.*
+import java.util.*
 import java.util.stream.Collectors
 
 
@@ -56,6 +57,9 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         router.get("/api/check-domain").handler(this::checkDomain)
 
         router.get("/api/scrap").handler(this::scrapDnsbl)
+
+        router.get("/api/csv-scrap").handler(this::scrapDnsblCsv)
+        router.get("/api/csv").handler(this::readFromCsv)
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
@@ -255,5 +259,109 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             val blockedFrom = DomainChecker.check(domain,dnsblMutabl)
             routingContext.response().setStatusCode(200).end(blockedFrom.toString())
         }
+    }
+
+    /**
+     * CSV
+     */
+
+    private val CSV_HEADER = "name"
+
+    val dnsblsBase : MutableList<DnsblCsv> = mutableListOf()
+
+    private fun scrapDnsblCsv(routingContext: RoutingContext){
+
+        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
+
+        val dnsbls : MutableList<DnsblCsv> = mutableListOf()
+        doc.select("td[width='33%']").forEach {
+            dnsbls.add(DnsblCsv(
+                    name = it.select("a").text()
+            ))
+        }
+
+        val resp = writeToCsv(dnsbls)
+        routingContext.response().setStatusCode(200).end(resp)
+    }
+
+    private fun readFromCsv(routingContext: RoutingContext){
+
+        val resp =  readFromCsv()
+
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
+    }
+
+    fun writeToCsv(dnsbls : MutableList<DnsblCsv>) : String{
+        var fileWriter: FileWriter? = null
+        try {
+            fileWriter = FileWriter("dnsbl.csv")
+
+            fileWriter.append(CSV_HEADER)
+            fileWriter.append('\n')
+
+            for (dnsbl in dnsbls) {
+                fileWriter.append(dnsbl.name)
+                fileWriter.append('\n')
+            }
+
+            return "Write CSV successfully!"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return "Writing CSV error!"
+        } finally {
+            try {
+                fileWriter!!.flush()
+                fileWriter.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+                return "Flushing/closing error!"
+            }
+        }
+    }
+
+    private val DNSBL_NAME = 0
+
+    fun readFromCsv() : MutableList<DnsblCsv>{
+        var fileReader: BufferedReader? = null
+        val dnsbls = mutableListOf<DnsblCsv>()
+
+        try {
+            var line: String?
+
+            fileReader = BufferedReader(FileReader("dnsbl.csv"))
+
+            // Read CSV header
+            fileReader.readLine()
+
+            // Read the file line by line starting from the second line
+            line = fileReader.readLine()
+            while (line != null) {
+                val tokens = line.split(",")
+                if (tokens.isNotEmpty()) {
+                    val dnsbl = DnsblCsv(
+                            tokens[DNSBL_NAME])
+                    println(tokens[DNSBL_NAME])
+                    dnsbls.add(dnsbl)
+                }
+
+                line = fileReader.readLine()
+            }
+
+            // Print the new customer list
+            for (dnsbl in dnsbls) {
+                println(dnsbl)
+            }
+        } catch (e: Exception) {
+            println("Reading CSV Error!")
+            e.printStackTrace()
+        } finally {
+            try {
+                fileReader!!.close()
+            } catch (e: IOException) {
+                println("Closing fileReader Error!")
+                e.printStackTrace()
+            }
+        }
+        return dnsbls
     }
 }
