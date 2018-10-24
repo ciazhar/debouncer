@@ -57,8 +57,10 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
         router.get("/api/scrap").handler(this::scrapDnsbl)
 
+        router.route("/api/csv*").handler(BodyHandler.create())
         router.get("/api/csv-scrap").handler(this::scrapDnsblCsv)
         router.get("/api/csv").handler(this::readFromCsv)
+        router.post("/api/csv").handler(this::addOneToCsv)
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
@@ -271,7 +273,6 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
     var dnsblList : List<DnsblCsv> = listOf()
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
-
         //scrap
         val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
         val dnsbls : MutableList<DnsblCsv> = mutableListOf()
@@ -294,12 +295,28 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
     }
 
     private fun readFromCsv(routingContext: RoutingContext){
-
         //read from csv
         val resp =  readFromCsv()
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
+    }
+
+    private fun addOneToCsv(routingContext: RoutingContext){
+        //request body
+        val dnsbl = Json.decodeValue(routingContext.bodyAsString,
+                DnsblCsv::class.java)
+
+        //read from csv
+        dnsblList = readFromCsv()
+        dnsblList += dnsbl
+        dnsblList = dnsblList.distinctBy { it.name }
+
+        //write to csv
+        writeToCsv(dnsblList)
+
+        //response
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
     }
 
     fun writeToCsv(dnsbls : List<DnsblCsv>) : String{
