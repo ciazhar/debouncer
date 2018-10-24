@@ -6,7 +6,6 @@ import com.ciazhar.domaincheckerservice.extension.useLogBack
 import com.ciazhar.domaincheckerservice.verticle.MainVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
-import io.vertx.ext.mongo.MongoClient
 
 /**
  * Created by ciazhar on 8/29/17.
@@ -24,11 +23,11 @@ class Application {
             val configurationProperties = propertiesConfiguration("application-config.properties")
             val configuration = vertex.retrieveConfig(configurationProperties).toBlocking().first()
 
-            println("Inisialisasi MongoDB")
-            val mongo = MongoClient.createShared(vertex,configuration)
+//            println("Inisialisasi MongoDB")
+//            val mongo = MongoClient.createShared(vertex,configuration)
 
             println("Deploy Main Verticle")
-            val mainVerticle = MainVerticle(mongo)
+            val mainVerticle = MainVerticle()
             vertex.deployVerticle(mainVerticle, DeploymentOptions().apply {
                 this.config = configuration
             })
