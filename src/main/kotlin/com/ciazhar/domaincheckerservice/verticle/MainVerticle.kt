@@ -21,7 +21,6 @@ import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 import org.jsoup.Jsoup
 import java.io.*
-import java.util.*
 import java.util.stream.Collectors
 
 
@@ -273,8 +272,8 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
 
+        //scrap
         val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
-
         val dnsbls : MutableList<DnsblCsv> = mutableListOf()
         doc.select("td[width='33%']").forEach {
             dnsbls.add(DnsblCsv(
@@ -282,18 +281,24 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             ))
         }
 
+        //read from csv and update
         dnsblList = readFromCsv()
         dnsblList += dnsbls
         dnsblList = dnsblList.distinctBy { it.name }
 
+        //write to csv
         val resp = writeToCsv(dnsblList)
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
+
+        //response
+        routingContext.response().setStatusCode(200).end(resp)
     }
 
     private fun readFromCsv(routingContext: RoutingContext){
 
+        //read from csv
         val resp =  readFromCsv()
 
+        //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
     }
 
