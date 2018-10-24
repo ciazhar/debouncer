@@ -121,7 +121,7 @@ class MainVerticle : AbstractVerticle() {
         }
 
         //delete line
-        removeLines(CSV_FILE_NAME,idInt,idInt)
+        removeLines(CSV_FILE_NAME,idInt+1,idInt+1)
 
         //read from csv
         val resp =  readFromCsv()
