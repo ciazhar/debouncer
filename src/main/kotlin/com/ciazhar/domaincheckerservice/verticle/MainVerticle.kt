@@ -4,6 +4,7 @@ package com.ciazhar.domaincheckerservice.verticle
 import com.ciazhar.domaincheckerservice.extension.logger
 import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
 import com.ciazhar.domaincheckerservice.model.DnsblCsv
 import com.ciazhar.domaincheckerservice.service.readFromCsv
 import com.ciazhar.domaincheckerservice.service.removeLines
@@ -46,7 +47,7 @@ class MainVerticle : AbstractVerticle() {
         router.get("/api/dnsbl").handler(this::readFromCsvEndpoint)
         router.delete("/api/dnsbl/:id").handler(this::deleteFromCsv)
 
-//        router.get("/api/check-domain").handler(this::checkDomain)
+        router.get("/api/check-domain").handler(this::checkDomain)
 
         router.get("/api/scrap").handler(this::scrapDnsblCsv)
 
@@ -147,5 +148,17 @@ class MainVerticle : AbstractVerticle() {
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
+    }
+
+    private fun checkDomain(routingContext: RoutingContext) {
+        val dnsbls = readFromCsv().map { it.name }.toMutableList()
+
+        val domain = routingContext.request().getParam("domain")
+        if (domain == null) {
+            routingContext.response().setStatusCode(400).end()
+        } else {
+            val blockedFrom = DomainChecker.check(domain,dnsbls)
+            routingContext.response().setStatusCode(200).end(blockedFrom.toString())
+        }
     }
 }
