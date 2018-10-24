@@ -152,6 +152,8 @@ class MainVerticle : AbstractVerticle() {
         var fileWriter: FileWriter? = null
         try {
             fileWriter = FileWriter(CSV_FILE_NAME)
+            fileWriter.append(CSV_HEADER)
+            fileWriter.append('\n')
 
             for (dnsbl in dnsbls) {
                 fileWriter.append(dnsbl.name)
