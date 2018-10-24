@@ -42,8 +42,6 @@ class MainVerticle : AbstractVerticle() {
         router.route("/api/dnsbl*").handler(BodyHandler.create())
         router.post("/api/dnsbl").handler(this::addOneToCsv)
         router.get("/api/dnsbl").handler(this::readFromCsv)
-//        router.get("/api/dnsbl/:id").handler(this::getOneFromFile)
-//        router.put("/api/dnsbl").handler(this::updateOne)
         router.delete("/api/dnsbl/:id").handler(this::deleteFromCsv)
 
 //        router.get("/api/check-domain").handler(this::checkDomain)
