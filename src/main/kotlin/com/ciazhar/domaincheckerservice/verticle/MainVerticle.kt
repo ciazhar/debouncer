@@ -5,6 +5,9 @@ import com.ciazhar.domaincheckerservice.extension.logger
 import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.model.DnsblCsv
+import com.ciazhar.domaincheckerservice.service.readFromCsv
+import com.ciazhar.domaincheckerservice.service.removeLines
+import com.ciazhar.domaincheckerservice.service.writeToCsv
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -14,7 +17,6 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 import org.jsoup.Jsoup
-import java.io.*
 
 
 class MainVerticle : AbstractVerticle() {
@@ -41,7 +43,7 @@ class MainVerticle : AbstractVerticle() {
 
         router.route("/api/dnsbl*").handler(BodyHandler.create())
         router.post("/api/dnsbl").handler(this::addOneToCsv)
-        router.get("/api/dnsbl").handler(this::readFromCsv)
+        router.get("/api/dnsbl").handler(this::readFromCsvEndpoint)
         router.delete("/api/dnsbl/:id").handler(this::deleteFromCsv)
 
 //        router.get("/api/check-domain").handler(this::checkDomain)
@@ -73,9 +75,11 @@ class MainVerticle : AbstractVerticle() {
      * CSV
      */
 
-    private val CSV_HEADER = "name"
-    private val DNSBL_NAME = 0
-    private val CSV_FILE_NAME = "dnsbl.csv"
+    companion object {
+        val CSV_HEADER = "name"
+        val DNSBL_NAME = 0
+        val CSV_FILE_NAME = "dnsbl.csv"
+    }
 
     var dnsblList : List<DnsblCsv> = listOf()
 
@@ -101,7 +105,7 @@ class MainVerticle : AbstractVerticle() {
         routingContext.response().setStatusCode(200).end(resp)
     }
 
-    private fun readFromCsv(routingContext: RoutingContext){
+    private fun readFromCsvEndpoint(routingContext: RoutingContext){
         //read from csv
         val resp =  readFromCsv()
 
@@ -143,94 +147,5 @@ class MainVerticle : AbstractVerticle() {
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
-    }
-
-    fun writeToCsv(dnsbls : List<DnsblCsv>) : String{
-        var dnsbls = dnsbls.sortedBy{ it.name }
-        var fileWriter: FileWriter? = null
-        try {
-            fileWriter = FileWriter(CSV_FILE_NAME)
-            fileWriter.append(CSV_HEADER)
-            fileWriter.append('\n')
-
-            for (dnsbl in dnsbls) {
-                fileWriter.append(dnsbl.name)
-                fileWriter.append('\n')
-            }
-
-            return "Write CSV successfully!"
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return "Writing CSV error!"
-        } finally {
-            try {
-                fileWriter!!.flush()
-                fileWriter.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return "Flushing/closing error!"
-            }
-        }
-    }
-
-    fun readFromCsv() : MutableList<DnsblCsv>{
-        var fileReader: BufferedReader? = null
-        val dnsbls = mutableListOf<DnsblCsv>()
-
-        try {
-            var line: String?
-
-            fileReader = BufferedReader(FileReader(CSV_FILE_NAME))
-
-            // Read CSV header
-            fileReader.readLine()
-
-            // Read the file line by line starting from the second line
-            line = fileReader.readLine()
-            while (line != null) {
-                val tokens = line.split(",")
-                if (tokens.isNotEmpty()) {
-                    val dnsbl = DnsblCsv(
-                            tokens[DNSBL_NAME])
-                    dnsbls.add(dnsbl)
-                }
-
-                line = fileReader.readLine()
-            }
-        } catch (e: Exception) {
-            println("Reading CSV Error!")
-            e.printStackTrace()
-        } finally {
-            try {
-                fileReader!!.close()
-            } catch (e: IOException) {
-                println("Closing fileReader Error!")
-                e.printStackTrace()
-            }
-        }
-        return dnsbls
-    }
-
-    fun removeLines(fileName: String, startLine: Int, numLines: Int) {
-        require(!fileName.isEmpty() && startLine >= 1 && numLines >= 1)
-        val f = File(fileName)
-        if (!f.exists()) {
-            println("$fileName does not exist")
-            return
-        }
-        var lines = f.readLines()
-        val size = lines.size
-        if (startLine > size) {
-            println("The starting line is beyond the length of the file")
-            return
-        }
-        var n = numLines
-        if (startLine + numLines - 1 > size) {
-            println("Attempting to remove some lines which are beyond the end of the file")
-            n = size - startLine + 1
-        }
-        lines = lines.take(startLine - 1) + lines.drop(startLine + n - 1)
-        val text = lines.joinToString(System.lineSeparator())
-        f.writeText(text)
     }
 }
