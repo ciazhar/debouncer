@@ -266,8 +266,10 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
      */
 
     private val CSV_HEADER = "name"
+    private val DNSBL_NAME = 0
+    private val CSV_FILE_NAME = "dnsbl.csv"
 
-    val dnsblsBase : MutableList<DnsblCsv> = mutableListOf()
+    var dnsblList : List<DnsblCsv> = listOf()
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
 
@@ -280,8 +282,12 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
             ))
         }
 
-        val resp = writeToCsv(dnsbls)
-        routingContext.response().setStatusCode(200).end(resp)
+        dnsblList = readFromCsv()
+        dnsblList += dnsbls
+        dnsblList = dnsblList.distinctBy { it.name }
+
+        val resp = writeToCsv(dnsblList)
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
     }
 
     private fun readFromCsv(routingContext: RoutingContext){
@@ -291,10 +297,10 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
     }
 
-    fun writeToCsv(dnsbls : MutableList<DnsblCsv>) : String{
+    fun writeToCsv(dnsbls : List<DnsblCsv>) : String{
         var fileWriter: FileWriter? = null
         try {
-            fileWriter = FileWriter("dnsbl.csv")
+            fileWriter = FileWriter(CSV_FILE_NAME)
 
             fileWriter.append(CSV_HEADER)
             fileWriter.append('\n')
@@ -319,8 +325,6 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         }
     }
 
-    private val DNSBL_NAME = 0
-
     fun readFromCsv() : MutableList<DnsblCsv>{
         var fileReader: BufferedReader? = null
         val dnsbls = mutableListOf<DnsblCsv>()
@@ -328,7 +332,7 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
         try {
             var line: String?
 
-            fileReader = BufferedReader(FileReader("dnsbl.csv"))
+            fileReader = BufferedReader(FileReader(CSV_FILE_NAME))
 
             // Read CSV header
             fileReader.readLine()
@@ -340,16 +344,10 @@ class MainVerticle (private var Mongo : MongoClient): AbstractVerticle() {
                 if (tokens.isNotEmpty()) {
                     val dnsbl = DnsblCsv(
                             tokens[DNSBL_NAME])
-                    println(tokens[DNSBL_NAME])
                     dnsbls.add(dnsbl)
                 }
 
                 line = fileReader.readLine()
-            }
-
-            // Print the new customer list
-            for (dnsbl in dnsbls) {
-                println(dnsbl)
             }
         } catch (e: Exception) {
             println("Reading CSV Error!")
