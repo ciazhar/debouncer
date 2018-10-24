@@ -2,6 +2,7 @@ package com.ciazhar.domaincheckerservice.verticle
 
 
 import com.ciazhar.domaincheckerservice.extension.logger
+import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.model.DnsblCsv
 import io.vertx.core.AbstractVerticle
@@ -43,7 +44,7 @@ class MainVerticle : AbstractVerticle() {
         router.get("/api/dnsbl").handler(this::readFromCsv)
 //        router.get("/api/dnsbl/:id").handler(this::getOneFromFile)
 //        router.put("/api/dnsbl").handler(this::updateOne)
-//        router.delete("/api/dnsbl/:id").handler(this::deleteOne)
+        router.delete("/api/dnsbl/:id").handler(this::deleteFromCsv)
 
 //        router.get("/api/check-domain").handler(this::checkDomain)
 
@@ -103,6 +104,25 @@ class MainVerticle : AbstractVerticle() {
     }
 
     private fun readFromCsv(routingContext: RoutingContext){
+        //read from csv
+        val resp =  readFromCsv()
+
+        //response
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
+    }
+
+    private fun deleteFromCsv(routingContext: RoutingContext){
+        val id = routingContext.param("id")
+        var idInt = 0
+        try {
+            idInt = id!!.toInt()
+        } catch (nfe: NumberFormatException) {
+            // not a valid int, handle this as you wish
+        }
+
+        //delete line
+        removeLines(CSV_FILE_NAME,idInt,idInt)
+
         //read from csv
         val resp =  readFromCsv()
 
@@ -191,5 +211,28 @@ class MainVerticle : AbstractVerticle() {
             }
         }
         return dnsbls
+    }
+
+    fun removeLines(fileName: String, startLine: Int, numLines: Int) {
+        require(!fileName.isEmpty() && startLine >= 1 && numLines >= 1)
+        val f = File(fileName)
+        if (!f.exists()) {
+            println("$fileName does not exist")
+            return
+        }
+        var lines = f.readLines()
+        val size = lines.size
+        if (startLine > size) {
+            println("The starting line is beyond the length of the file")
+            return
+        }
+        var n = numLines
+        if (startLine + numLines - 1 > size) {
+            println("Attempting to remove some lines which are beyond the end of the file")
+            n = size - startLine + 1
+        }
+        lines = lines.take(startLine - 1) + lines.drop(startLine + n - 1)
+        val text = lines.joinToString(System.lineSeparator())
+        f.writeText(text)
     }
 }
