@@ -28,7 +28,6 @@
                     <tr>
                         <th>#</th>
                         <th>Name</th>
-                        <th>Url</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -72,18 +71,9 @@
         $.getJSON("/api/dnsbl", function (data) {
             $.each(data, function (key, val) {
                 var inc = key+1
-                $("<tr><td>" + inc + "</td><td>" + val.name + "</td><td>" + val.url + "</td>" +
+                $("<tr><td>" + inc + "</td><td>" + val.name + "</td>" +
                     "<td>" +
-                    "<button data-action='edit' class='btn btn-primary btn-sm product-edit' " +
-                    "data-toggle='modal' " +
-                    "data-target='#productModal' " +
-                    "data-name='" + val.name + "' " +
-                    "data-url='" + val.url + "' " +
-                    "data-id='" + val.id + "'>" +
-                    "<span class='glyphicon glyphicon-pencil'></span>" +
-                    "</button>" +
-                    "&nbsp;" +
-                    "<button class='btn btn-danger btn-sm product-delete' data-id='" + val.id + "'>" +
+                    "<button class='btn btn-danger btn-sm product-delete' data-id='" + inc + "'>" +
                     "   <span class='glyphicon glyphicon-minus'></span>" +
                     "</button>" +
                     "</td>" +
@@ -95,6 +85,7 @@
     function initCallbacks() {
         $(".product-delete").unbind().click(function() {
             var id = $(this).data("id");
+            console.log(id)
             remove(id);
         });
     }
