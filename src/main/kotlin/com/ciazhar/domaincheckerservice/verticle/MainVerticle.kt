@@ -77,12 +77,12 @@ class MainVerticle : AbstractVerticle() {
      */
 
     companion object {
-        val CSV_HEADER = "name"
-        val DNSBL_NAME = 0
-        val CSV_FILE_NAME = "dnsbl.csv"
+        const val CSV_HEADER = "name"
+        const val DNSBL_NAME = 0
+        const val CSV_FILE_NAME = "dnsbl.csv"
     }
 
-    var dnsblList : List<DnsblCsv> = listOf()
+    private var dnsblList : List<DnsblCsv> = listOf()
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
         //scrap
