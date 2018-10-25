@@ -96,7 +96,7 @@
                 <hgroup>
                     <h1>DNSBL Domain Checkker</h1>
 
-                    <p>Check your domain whether it is blocked in DNSBL or not</p>
+                    <p>Check your domain whether it is blocked in <a href="dnsbl.html">DNSBL</a> or not</p>
                 </hgroup>
                 <div class="well">
                     <h1 id="dnsbl"></h1>
@@ -115,18 +115,20 @@
     </section>
 </div>
 <script>
+    function getName(item, index) {
+        return item.name;
+    }
+
     $('#submit').on("click",function() {
         var domain = $('#domain').val();
-        var dnsbl;
-        $.getJSON("/api/check-domain?domain="+domain, function (data) {
-            dnsbl = data.toString()
+        $('#dnsbl').append('<div class="loader"></div>')
+        $.getJSON("/api/check-domain",{domain:domain}, function (data) {
             console.log(data)
-        });
-        $('#dnsbl').append('<div class="loader"></div>');
-        setTimeout(function() {
+        }).done(function (data) {
             $('.loader').remove();
-            $("#result").text("RESULT : "+dnsbl);
-        }, 20000);
+            $("#result").text("RESULT : "+data.map(getName));
+            console.log(dnsbl)
+        });
     })
 </script>
 
