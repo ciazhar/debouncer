@@ -115,8 +115,16 @@
     </section>
 </div>
 <script>
-    function getName(item, index) {
-        return item.name;
+    function mapResponse(array){
+        var unique = {};
+        var distinct = [];
+        for( var i in array ){
+            if( typeof(unique[array[i].name]) === "undefined"){
+                distinct.push(array[i].name);
+            }
+            unique[array[i].name] = 0;
+        }
+        return distinct
     }
 
     $('#submit').on("click",function() {
@@ -126,7 +134,8 @@
             console.log(data)
         }).done(function (data) {
             $('.loader').remove();
-            $("#result").text("RESULT : "+data.map(getName));
+            var distinctedData = mapResponse(data)
+            $("#result").text("RESULT : "+distinctedData);
             console.log(dnsbl)
         });
     })
