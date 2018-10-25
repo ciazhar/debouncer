@@ -158,7 +158,8 @@ class MainVerticle : AbstractVerticle() {
             routingContext.response().setStatusCode(400).end()
         } else {
             val blockedFrom = DomainChecker.check(domain,dnsbls)
-            routingContext.response().setStatusCode(200).end(blockedFrom.toString())
+            val blockerFromJson = blockedFrom.asSequence().map { DnsblCsv(it) }.toMutableList()
+            routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockerFromJson))
         }
     }
 }
