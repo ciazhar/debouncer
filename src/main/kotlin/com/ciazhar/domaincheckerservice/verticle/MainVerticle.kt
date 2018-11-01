@@ -32,16 +32,6 @@ class MainVerticle : AbstractVerticle() {
         println("Initialize Router...")
         val router = Router.router(vertx)
 
-        // Bind "/" to our hello message.
-        router.route("/").handler { routingContext ->
-            val response = routingContext.response()
-            response
-                    .putHeader("content-type", "text/html")
-                    .end("<h1>Hello from my first Vert.x 3 application</h1>")
-        }
-
-        router.route("/assets/*").handler(StaticHandler.create("assets"))
-
         router.route("/api/dnsbl*").handler(BodyHandler.create())
         router.post("/api/dnsbl").handler(this::addOneToCsv)
         router.get("/api/dnsbl").handler(this::readFromCsvEndpoint)
@@ -50,6 +40,8 @@ class MainVerticle : AbstractVerticle() {
         router.get("/api/check-domain").handler(this::checkDomain)
 
         router.get("/api/scrap").handler(this::scrapDnsblCsv)
+
+        router.route("/*").handler(StaticHandler.create("assets"))
 
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
