@@ -130,7 +130,7 @@
     $('#submit').on("click",function() {
         var domain = $('#domain').val();
         $('#dnsbl').append('<div class="loader"></div>')
-        $.getJSON("/api/check-domain",{domain:index}, function (data) {
+        $.getJSON("/api/check-domain?domain="+domain, function (data) {
             console.log(data)
         }).done(function (data) {
             $('.loader').remove();
