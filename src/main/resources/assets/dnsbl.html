@@ -19,6 +19,8 @@
         <div class="row">
             <div class="col-md-12">
                 <!--<h1>DNSBL List</h1>-->
+                <button type="button" class="btn btn-info init" id="load" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Loading...">Init DNSBL</button>
+                <a href="" class="pull-right ">&nbsp;</a>
                 <button class="pull-right btn btn-primary product-add" data-action="add" data-toggle="modal"
                         data-target="#productModal">
                     <span class="glyphicon glyphicon-plus"></span> Add a new DNSBL
@@ -120,6 +122,17 @@
             }
         })
     }
+    $('.init').on('click', function() {
+        var $this = $(this);
+        $this.button('loading');
+        $.get("/api/scrap", function () {
+            $this.button('reset');
+        }).done(function () {
+            $this.button('reset');
+            location.reload()
+        });
+    });
+
 </script>
 <div class="modal fade" id="productModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="dialog">
