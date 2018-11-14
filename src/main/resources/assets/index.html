@@ -101,12 +101,12 @@
                 <div class="well">
                     <h1 id="dnsbl"></h1>
 
-                    <form action="#">
+                    <!--<form action="#">-->
                         <div class="input-group">
                             <input class="btn btn-lg" name="domain" id="domain" type="text" placeholder="Your Domain" required>
-                            <button id="submit" class="btn btn-info btn-lg" type="submit">Submit</button>
+                            <button id="formDomain" class="btn btn-info btn-lg" type="submit">Submit</button>
                         </div>
-                    </form>
+                    <!--</form>-->
 
                     <h1 id="result"></h1>
                 </div>
@@ -127,7 +127,9 @@
         return distinct
     }
 
-    $('#submit').on("click",function() {
+    $('#formDomain').on("click",function(e) {
+        e.preventDefault()
+
         var domain = $('#domain').val();
         $('#dnsbl').append('<div class="loader"></div>')
         $.getJSON("/api/check-domain?domain="+domain, function (data) {
