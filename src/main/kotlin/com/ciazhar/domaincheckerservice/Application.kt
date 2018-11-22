@@ -23,9 +23,6 @@ class Application {
             val configurationProperties = propertiesConfiguration("application-config.properties")
             val configuration = vertex.retrieveConfig(configurationProperties).toBlocking().first()
 
-//            println("Inisialisasi MongoDB")
-//            val mongo = MongoClient.createShared(vertex,configuration)
-
             println("Deploy Main Verticle")
             val mainVerticle = MainVerticle()
             vertex.deployVerticle(mainVerticle, DeploymentOptions().apply {
