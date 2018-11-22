@@ -4,12 +4,15 @@ import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import com.ciazhar.domaincheckerservice.verticle.MainVerticle
 import java.io.*
 
-fun writeToCsv(fileName: String, headerName : String, dnsbls : List<Dnsbl>) : String{
+val DNSBL_NAME = 0
+val CSV_HEADER = "name"
+
+fun writeToCsv(fileName: String, dnsbls : List<Dnsbl>) : String{
     var dnsbls = dnsbls.sortedBy{ it.name }
     var fileWriter: FileWriter? = null
     try {
         fileWriter = FileWriter(fileName)
-        fileWriter.append(headerName)
+        fileWriter.append(CSV_HEADER)
         fileWriter.append('\n')
 
         for (dnsbl in dnsbls) {
@@ -50,7 +53,7 @@ fun readFromCsv(fileName: String) : MutableList<Dnsbl>{
             val tokens = line.split(",")
             if (tokens.isNotEmpty()) {
                 val dnsbl = Dnsbl(
-                        tokens[MainVerticle.DNSBL_NAME])
+                        tokens[DNSBL_NAME])
                 dnsbls.add(dnsbl)
             }
 

@@ -141,7 +141,7 @@ object DomainChecker {
     }
 
     @JvmStatic
-    fun scrapDnsbl(fileName : String, headerName : String):String {
-        return service.scrapDnsbl(fileName,headerName)
+    fun scrapDnsbl(fileName : String):String {
+        return service.scrapDnsbl(fileName)
     }
 }

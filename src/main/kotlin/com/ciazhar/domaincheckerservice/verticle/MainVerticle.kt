@@ -67,25 +67,16 @@ class MainVerticle : AbstractVerticle() {
      */
 
     companion object {
-        const val CSV_HEADER = "name"
-        const val DNSBL_NAME = 0
         const val CSV_FILE_NAME = "dnsbl.csv"
     }
 
-    private var dnsblList : List<Dnsbl> = listOf()
-
     private fun scrapDnsblCsv(routingContext: RoutingContext){
-        val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME, CSV_HEADER)
-
-        //response
+        val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME)
         routingContext.response().setStatusCode(200).end(resp)
     }
 
     private fun readFromCsvEndpoint(routingContext: RoutingContext){
-        //read from csv
         val resp = readFromCsv(CSV_FILE_NAME)
-
-        //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
     }
 
@@ -114,12 +105,12 @@ class MainVerticle : AbstractVerticle() {
                 Dnsbl::class.java)
 
         //read from csv
-        dnsblList = readFromCsv(CSV_FILE_NAME)
+        var dnsblList = readFromCsv(CSV_FILE_NAME).toList()
         dnsblList += dnsbl
         dnsblList = dnsblList.distinctBy { it.name }
 
         //write to csv
-        writeToCsv(CSV_FILE_NAME, CSV_HEADER, dnsblList)
+        writeToCsv(CSV_FILE_NAME, dnsblList)
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
