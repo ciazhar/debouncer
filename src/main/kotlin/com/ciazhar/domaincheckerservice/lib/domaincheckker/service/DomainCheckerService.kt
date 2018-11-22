@@ -8,4 +8,5 @@ import rx.Observable
  */
 interface DomainCheckerService {
     fun checkDomain(domain: String, dnsbl: String): Observable<Boolean>
+    fun scrapDnsbl(fileName : String) : String
 }

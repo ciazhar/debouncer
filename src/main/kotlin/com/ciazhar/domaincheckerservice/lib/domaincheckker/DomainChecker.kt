@@ -97,7 +97,7 @@ object DomainChecker {
     )
 
     @JvmStatic
-    fun check(domain: String): MutableList<String> {
+    fun checkDomain(domain: String): MutableList<String> {
 
         println("Start Checking $domain ...")
         println("Please wait for some seconds ...")
@@ -118,7 +118,7 @@ object DomainChecker {
     }
 
     @JvmStatic
-    fun check(domain: String, newDnsblList: MutableList<String>): MutableList<String> {
+    fun checkDomain(domain: String, newDnsblList: MutableList<String>): MutableList<String> {
 
         println("Start Checking $domain ...")
         println("Please wait for some seconds ...")
@@ -138,5 +138,10 @@ object DomainChecker {
         }.toBlocking().subscribe()
 
         return blockedList
+    }
+
+    @JvmStatic
+    fun scrapDnsbl(fileName : String):String {
+        return service.scrapDnsbl(fileName)
     }
 }

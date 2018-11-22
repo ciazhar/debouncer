@@ -17,8 +17,6 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
-import org.jsoup.Jsoup
-
 
 class MainVerticle : AbstractVerticle() {
 
@@ -77,22 +75,7 @@ class MainVerticle : AbstractVerticle() {
     private var dnsblList : List<DnsblCsv> = listOf()
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
-        //scrap
-        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
-        val dnsbls : MutableList<DnsblCsv> = mutableListOf()
-        doc.select("td[width='33%']").forEach {
-            dnsbls.add(DnsblCsv(
-                    name = it.select("a").text()
-            ))
-        }
-
-        //read from csv and update
-        dnsblList = readFromCsv()
-        dnsblList += dnsbls
-        dnsblList = dnsblList.distinctBy { it.name }
-
-        //write to csv
-        val resp = writeToCsv(dnsblList)
+        val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME)
 
         //response
         routingContext.response().setStatusCode(200).end(resp)
@@ -149,7 +132,7 @@ class MainVerticle : AbstractVerticle() {
         if (domain == null) {
             routingContext.response().setStatusCode(400).end()
         } else {
-            val blockedFrom = DomainChecker.check(domain,dnsbls)
+            val blockedFrom = DomainChecker.checkDomain(domain,dnsbls)
             val blockerFromJson = blockedFrom.asSequence().map { DnsblCsv(it) }.toMutableList()
             routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockerFromJson))
         }
