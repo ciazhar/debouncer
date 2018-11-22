@@ -1,8 +1,8 @@
 package com.ciazhar.domaincheckerservice.lib.domaincheckker.service
 
-import com.ciazhar.domaincheckerservice.model.DnsblCsv
-import com.ciazhar.domaincheckerservice.service.readFromCsv
-import com.ciazhar.domaincheckerservice.service.writeToCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.readFromCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.writeToCsv
 import org.jsoup.Jsoup
 import org.xbill.DNS.*
 import rx.Observable
@@ -16,13 +16,13 @@ class DomainCheckerServiceImpl : DomainCheckerService {
 
     override fun scrapDnsbl(fileName : String) : String {
         //init dnsbl list
-        var dnsblList : List<DnsblCsv> = readFromCsv()
+        var dnsblList : List<Dnsbl> = readFromCsv(fileName)
 
         //scrap
         val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
-        val dnsbls : MutableList<DnsblCsv> = mutableListOf()
+        val dnsbls : MutableList<Dnsbl> = mutableListOf()
         doc.select("td[width='33%']").forEach {
-            dnsbls.add(DnsblCsv(
+            dnsbls.add(Dnsbl(
                     name = it.select("a").text()
             ))
         }
@@ -32,7 +32,19 @@ class DomainCheckerServiceImpl : DomainCheckerService {
         dnsblList = dnsblList.distinctBy { it.name }
 
         //write to csv
-        return writeToCsv(dnsblList)
+        return writeToCsv(fileName,dnsblList)
+    }
+
+    override fun deletednsbl() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getDnsbl() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addDnsbl() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun checkDomain(domain: String, dnsbl: String): Observable<Boolean> {
