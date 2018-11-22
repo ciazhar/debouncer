@@ -1,4 +1,4 @@
-package com.ciazhar.domaincheckerservice.service
+package com.ciazhar.domaincheckerservice.lib.domaincheckker.util
 
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import com.ciazhar.domaincheckerservice.verticle.MainVerticle
