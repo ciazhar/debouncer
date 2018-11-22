@@ -137,8 +137,11 @@
         }).done(function (data) {
             $('.loader').remove();
             var distinctedData = mapResponse(data)
-            $("#result").text("RESULT : "+distinctedData);
-            console.log(dnsbl)
+            if (data.length==0){
+                $("#result").text("Domain Secure");
+            }else {
+                $("#result").text(domain+" is listed in "+distinctedData);
+            }
         });
     })
 </script>
