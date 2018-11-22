@@ -5,10 +5,10 @@ import com.ciazhar.domaincheckerservice.extension.logger
 import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
-import com.ciazhar.domaincheckerservice.model.DnsblCsv
-import com.ciazhar.domaincheckerservice.service.readFromCsv
-import com.ciazhar.domaincheckerservice.service.removeLines
-import com.ciazhar.domaincheckerservice.service.writeToCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.readFromCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.removeLines
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.writeToCsv
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -72,10 +72,10 @@ class MainVerticle : AbstractVerticle() {
         const val CSV_FILE_NAME = "dnsbl.csv"
     }
 
-    private var dnsblList : List<DnsblCsv> = listOf()
+    private var dnsblList : List<Dnsbl> = listOf()
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
-        val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME)
+        val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME, CSV_HEADER)
 
         //response
         routingContext.response().setStatusCode(200).end(resp)
@@ -83,7 +83,7 @@ class MainVerticle : AbstractVerticle() {
 
     private fun readFromCsvEndpoint(routingContext: RoutingContext){
         //read from csv
-        val resp =  readFromCsv()
+        val resp = readFromCsv(CSV_FILE_NAME)
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
@@ -99,10 +99,10 @@ class MainVerticle : AbstractVerticle() {
         }
 
         //delete line
-        removeLines(CSV_FILE_NAME,idInt+1,1)
+        removeLines(CSV_FILE_NAME, idInt + 1, 1)
 
         //read from csv
-        val resp =  readFromCsv()
+        val resp = readFromCsv(CSV_FILE_NAME)
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
@@ -111,29 +111,29 @@ class MainVerticle : AbstractVerticle() {
     private fun addOneToCsv(routingContext: RoutingContext){
         //request body
         val dnsbl = Json.decodeValue(routingContext.bodyAsString,
-                DnsblCsv::class.java)
+                Dnsbl::class.java)
 
         //read from csv
-        dnsblList = readFromCsv()
+        dnsblList = readFromCsv(CSV_FILE_NAME)
         dnsblList += dnsbl
         dnsblList = dnsblList.distinctBy { it.name }
 
         //write to csv
-        writeToCsv(dnsblList)
+        writeToCsv(CSV_FILE_NAME, CSV_HEADER, dnsblList)
 
         //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
     }
 
     private fun checkDomain(routingContext: RoutingContext) {
-        val dnsbls = readFromCsv().map { it.name }.toMutableList()
+        val dnsbls = readFromCsv(CSV_FILE_NAME).map { it.name }.toMutableList()
 
         val domain = routingContext.request().getParam("domain")
         if (domain == null) {
             routingContext.response().setStatusCode(400).end()
         } else {
             val blockedFrom = DomainChecker.checkDomain(domain,dnsbls)
-            val blockerFromJson = blockedFrom.asSequence().map { DnsblCsv(it) }.toMutableList()
+            val blockerFromJson = blockedFrom.asSequence().map { Dnsbl(it) }.toMutableList()
             routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockerFromJson))
         }
     }
