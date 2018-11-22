@@ -1,15 +1,15 @@
 package com.ciazhar.domaincheckerservice.service
 
-import com.ciazhar.domaincheckerservice.model.DnsblCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import com.ciazhar.domaincheckerservice.verticle.MainVerticle
 import java.io.*
 
-fun writeToCsv(dnsbls : List<DnsblCsv>) : String{
+fun writeToCsv(fileName: String, headerName : String, dnsbls : List<Dnsbl>) : String{
     var dnsbls = dnsbls.sortedBy{ it.name }
     var fileWriter: FileWriter? = null
     try {
-        fileWriter = FileWriter(MainVerticle.CSV_FILE_NAME)
-        fileWriter.append(MainVerticle.CSV_HEADER)
+        fileWriter = FileWriter(fileName)
+        fileWriter.append(headerName)
         fileWriter.append('\n')
 
         for (dnsbl in dnsbls) {
@@ -32,14 +32,14 @@ fun writeToCsv(dnsbls : List<DnsblCsv>) : String{
     }
 }
 
-fun readFromCsv() : MutableList<DnsblCsv>{
+fun readFromCsv(fileName: String) : MutableList<Dnsbl>{
     var fileReader: BufferedReader? = null
-    val dnsbls = mutableListOf<DnsblCsv>()
+    val dnsbls = mutableListOf<Dnsbl>()
 
     try {
         var line: String?
 
-        fileReader = BufferedReader(FileReader(MainVerticle.CSV_FILE_NAME))
+        fileReader = BufferedReader(FileReader(fileName))
 
         // Read CSV header
         fileReader.readLine()
@@ -49,7 +49,7 @@ fun readFromCsv() : MutableList<DnsblCsv>{
         while (line != null) {
             val tokens = line.split(",")
             if (tokens.isNotEmpty()) {
-                val dnsbl = DnsblCsv(
+                val dnsbl = Dnsbl(
                         tokens[MainVerticle.DNSBL_NAME])
                 dnsbls.add(dnsbl)
             }
