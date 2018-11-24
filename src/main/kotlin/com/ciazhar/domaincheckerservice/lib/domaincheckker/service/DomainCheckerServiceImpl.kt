@@ -2,7 +2,9 @@ package com.ciazhar.domaincheckerservice.lib.domaincheckker.service
 
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.readFromCsv
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.removeLines
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.writeToCsv
+import com.ciazhar.domaincheckerservice.verticle.MainVerticle
 import org.jsoup.Jsoup
 import org.xbill.DNS.*
 import rx.Observable
@@ -35,16 +37,32 @@ class DomainCheckerServiceImpl : DomainCheckerService {
         return writeToCsv(fileName,dnsblList)
     }
 
-    override fun deletednsbl() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun deletednsbl(id : String, fileName: String) {
+        var idInt = 0
+        try {
+            idInt = id.toInt()
+        } catch (nfe: NumberFormatException) {
+            // not a valid int, handle this as you wish
+        }
+
+        //delete line
+        removeLines(fileName, idInt + 1, 1)
     }
 
-    override fun getDnsbl() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getDnsbl(fileName : String) : MutableList<Dnsbl>{
+        return readFromCsv(fileName)
     }
 
-    override fun addDnsbl() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun addDnsbl(fileName : String, dnsbl : Dnsbl) : List<Dnsbl> {
+        //read from csv
+        var dnsblList = readFromCsv(fileName).toList()
+        dnsblList += dnsbl
+        dnsblList = dnsblList.distinctBy { it.name }
+
+        //write to csv
+        writeToCsv(fileName, dnsblList)
+
+        return dnsblList
     }
 
     override fun checkDomain(domain: String, dnsbl: String): Observable<Boolean> {

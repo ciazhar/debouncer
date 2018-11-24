@@ -1,5 +1,6 @@
 package com.ciazhar.domaincheckerservice.lib.domaincheckker
 
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.service.DomainCheckerServiceImpl
 import rx.Observable
 import rx.schedulers.Schedulers
@@ -143,5 +144,20 @@ object DomainChecker {
     @JvmStatic
     fun scrapDnsbl(fileName : String):String {
         return service.scrapDnsbl(fileName)
+    }
+
+    @JvmStatic
+    fun getDnsbl(fileName : String):MutableList<Dnsbl> {
+        return service.getDnsbl(fileName)
+    }
+
+    @JvmStatic
+    fun deleteDnsbl(id : String, fileName : String){
+        service.deletednsbl(id,fileName)
+    }
+
+    @JvmStatic
+    fun addDnsbl(fileName : String, dnsbl : Dnsbl){
+        service.addDnsbl(fileName,dnsbl)
     }
 }

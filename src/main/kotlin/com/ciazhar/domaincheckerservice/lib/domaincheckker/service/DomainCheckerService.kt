@@ -1,5 +1,6 @@
 package com.ciazhar.domaincheckerservice.lib.domaincheckker.service
 
+import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
 import rx.Observable
 
 /**
@@ -9,7 +10,7 @@ import rx.Observable
 interface DomainCheckerService {
     fun checkDomain(domain: String, dnsbl: String): Observable<Boolean>
     fun scrapDnsbl(fileName : String) : String
-    fun getDnsbl()
-    fun addDnsbl()
-    fun deletednsbl()
+    fun getDnsbl(fileName : String) : MutableList<Dnsbl>
+    fun addDnsbl(fileName : String, dnsbl : Dnsbl) : List<Dnsbl>
+    fun deletednsbl(id : String, fileName: String)
 }

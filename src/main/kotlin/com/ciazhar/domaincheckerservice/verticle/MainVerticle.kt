@@ -6,9 +6,6 @@ import com.ciazhar.domaincheckerservice.extension.param
 import com.ciazhar.domaincheckerservice.extension.single
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
 import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.readFromCsv
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.removeLines
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.writeToCsv
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -71,32 +68,38 @@ class MainVerticle : AbstractVerticle() {
     }
 
     private fun scrapDnsblCsv(routingContext: RoutingContext){
+        //scrap dnsbl
         val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME)
+
+        //response
         routingContext.response().setStatusCode(200).end(resp)
     }
 
     private fun readFromCsvEndpoint(routingContext: RoutingContext){
-        val resp = readFromCsv(CSV_FILE_NAME)
+        //get dnsbl
+        val resp = DomainChecker.getDnsbl(CSV_FILE_NAME)
+
+        //response
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
     }
 
     private fun deleteFromCsv(routingContext: RoutingContext){
+        //request path variable
         val id = routingContext.param("id")
-        var idInt = 0
-        try {
-            idInt = id!!.toInt()
-        } catch (nfe: NumberFormatException) {
-            // not a valid int, handle this as you wish
+
+        //check path variable if exist
+        if (id==null){
+            routingContext.response().setStatusCode(400).end()
+        }else{
+            //delete dnsbl
+            DomainChecker.deleteDnsbl(id, CSV_FILE_NAME)
+
+            //get dnsbl
+            val resp = DomainChecker.getDnsbl(CSV_FILE_NAME)
+
+            //response
+            routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
         }
-
-        //delete line
-        removeLines(CSV_FILE_NAME, idInt + 1, 1)
-
-        //read from csv
-        val resp = readFromCsv(CSV_FILE_NAME)
-
-        //response
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
     }
 
     private fun addOneToCsv(routingContext: RoutingContext){
@@ -104,28 +107,33 @@ class MainVerticle : AbstractVerticle() {
         val dnsbl = Json.decodeValue(routingContext.bodyAsString,
                 Dnsbl::class.java)
 
-        //read from csv
-        var dnsblList = readFromCsv(CSV_FILE_NAME).toList()
-        dnsblList += dnsbl
-        dnsblList = dnsblList.distinctBy { it.name }
-
-        //write to csv
-        writeToCsv(CSV_FILE_NAME, dnsblList)
+        //add dnsbl
+        val res = DomainChecker.addDnsbl(CSV_FILE_NAME,dnsbl)
 
         //response
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(dnsblList))
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(res))
     }
 
     private fun checkDomain(routingContext: RoutingContext) {
-        val dnsbls = readFromCsv(CSV_FILE_NAME).map { it.name }.toMutableList()
+        //get dnsbl
+        val dnsbls = DomainChecker.getDnsbl(CSV_FILE_NAME).map { it.name }.toMutableList()
 
+        //request param
         val domain = routingContext.request().getParam("domain")
+
+        //check param if exist
         if (domain == null) {
+            //response bad request if not exist
             routingContext.response().setStatusCode(400).end()
         } else {
-            val blockedFrom = DomainChecker.checkDomain(domain,dnsbls)
-            val blockerFromJson = blockedFrom.asSequence().map { Dnsbl(it) }.toMutableList()
-            routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockerFromJson))
+            //check domain
+            val blockedFrom = DomainChecker
+                    .checkDomain(domain,dnsbls)
+                    .asSequence().map { Dnsbl(it) }
+                    .toMutableList()
+
+            //response success
+            routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockedFrom))
         }
     }
 }
