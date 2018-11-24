@@ -4,3 +4,4 @@ gradlew
 gradlew.bat
 logs
 .vertx
+dnsbl.csv
