@@ -55,14 +55,16 @@ dependencies {
     compile "io.vertx:vertx-config:$vertxVersion"
     compile "io.vertx:vertx-lang-kotlin:$vertxVersion"
 
-    compile 'dnsjava:dnsjava:2.1.8'
-
     compile 'com.google.code.gson:gson:2.8.1'
 
+    //dns lookup
+    compile 'dnsjava:dnsjava:2.1.8'
+
+    //scrap
     compile 'org.jsoup:jsoup:1.11.3'
 
+    //ml
     compile 'com.hankcs:hanlp:portable-1.5.2'
-
     compile 'de.bwaldvogel:liblinear:1.95'
 
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
