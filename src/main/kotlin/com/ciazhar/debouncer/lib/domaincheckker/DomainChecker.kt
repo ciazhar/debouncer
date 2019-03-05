@@ -1,7 +1,7 @@
-package com.ciazhar.domaincheckerservice.lib.domaincheckker
+package com.ciazhar.debouncer.lib.domaincheckker
 
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.service.DomainCheckerServiceImpl
+import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.lib.domaincheckker.service.DomainCheckerServiceImpl
 import rx.Observable
 import rx.schedulers.Schedulers
 

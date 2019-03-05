@@ -1,9 +1,9 @@
-package com.ciazhar.domaincheckerservice
+package com.ciazhar.debouncer
 
-import com.ciazhar.domaincheckerservice.extension.propertiesConfiguration
-import com.ciazhar.domaincheckerservice.extension.retrieveConfig
-import com.ciazhar.domaincheckerservice.extension.useLogBack
-import com.ciazhar.domaincheckerservice.verticle.MainVerticle
+import com.ciazhar.debouncer.extension.propertiesConfiguration
+import com.ciazhar.debouncer.extension.retrieveConfig
+import com.ciazhar.debouncer.extension.useLogBack
+import com.ciazhar.debouncer.verticle.MainVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 

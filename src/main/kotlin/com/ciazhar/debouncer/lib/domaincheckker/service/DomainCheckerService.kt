@@ -1,6 +1,6 @@
-package com.ciazhar.domaincheckerservice.lib.domaincheckker.service
+package com.ciazhar.debouncer.lib.domaincheckker.service
 
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
 import rx.Observable
 
 /**

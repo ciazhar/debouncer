@@ -1,4 +1,4 @@
-package com.ciazhar.domaincheckerservice.extension
+package com.ciazhar.debouncer.extension
 
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.json.Json

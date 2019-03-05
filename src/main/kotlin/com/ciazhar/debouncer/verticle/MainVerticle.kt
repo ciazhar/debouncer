@@ -1,11 +1,11 @@
-package com.ciazhar.domaincheckerservice.verticle
+package com.ciazhar.debouncer.verticle
 
 
-import com.ciazhar.domaincheckerservice.extension.logger
-import com.ciazhar.domaincheckerservice.extension.param
-import com.ciazhar.domaincheckerservice.extension.single
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.extension.logger
+import com.ciazhar.debouncer.extension.param
+import com.ciazhar.debouncer.extension.single
+import com.ciazhar.debouncer.lib.domaincheckker.DomainChecker
+import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer

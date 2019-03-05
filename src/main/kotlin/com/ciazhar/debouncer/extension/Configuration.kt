@@ -1,4 +1,4 @@
-package com.ciazhar.domaincheckerservice.extension
+package com.ciazhar.debouncer.extension
 
 import io.vertx.config.ConfigRetriever
 import io.vertx.config.ConfigStoreOptions

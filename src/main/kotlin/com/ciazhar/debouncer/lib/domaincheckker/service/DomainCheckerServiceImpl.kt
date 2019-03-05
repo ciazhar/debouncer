@@ -1,10 +1,10 @@
-package com.ciazhar.domaincheckerservice.lib.domaincheckker.service
+package com.ciazhar.debouncer.lib.domaincheckker.service
 
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.readFromCsv
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.removeLines
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.util.writeToCsv
-import com.ciazhar.domaincheckerservice.verticle.MainVerticle
+import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.lib.domaincheckker.util.readFromCsv
+import com.ciazhar.debouncer.lib.domaincheckker.util.removeLines
+import com.ciazhar.debouncer.lib.domaincheckker.util.writeToCsv
+import com.ciazhar.debouncer.verticle.MainVerticle
 import org.jsoup.Jsoup
 import org.xbill.DNS.*
 import rx.Observable
@@ -34,7 +34,7 @@ class DomainCheckerServiceImpl : DomainCheckerService {
         dnsblList = dnsblList.distinctBy { it.name }
 
         //write to csv
-        return writeToCsv(fileName,dnsblList)
+        return writeToCsv(fileName, dnsblList)
     }
 
     override fun deletednsbl(id : String, fileName: String) {

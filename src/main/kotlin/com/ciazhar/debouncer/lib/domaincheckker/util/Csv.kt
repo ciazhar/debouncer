@@ -1,7 +1,7 @@
-package com.ciazhar.domaincheckerservice.lib.domaincheckker.util
+package com.ciazhar.debouncer.lib.domaincheckker.util
 
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.model.Dnsbl
-import com.ciazhar.domaincheckerservice.verticle.MainVerticle
+import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.verticle.MainVerticle
 import java.io.*
 
 val DNSBL_NAME = 0

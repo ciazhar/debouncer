@@ -1,6 +1,6 @@
-package com.ciazhar.domainchecker
+package com.ciazhar.debouncer
 
-import com.ciazhar.domaincheckerservice.lib.domaincheckker.DomainChecker
+import com.ciazhar.debouncer.lib.domaincheckker.DomainChecker
 import org.junit.Test
 
 /**
