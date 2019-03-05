@@ -9,7 +9,7 @@
  * This source is subject to Hankcs. Please contact Hankcs to get more information.
  * </copyright>
  */
-package com.ciazhar.debouncer.lib.spamchecker.model;
+package com.ciazhar.debouncer.lib.svmchecker.model;
 
 import com.hankcs.hanlp.classification.features.IFeatureWeighter;
 import com.hankcs.hanlp.classification.models.AbstractModel;

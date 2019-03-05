@@ -1,4 +1,4 @@
-package com.ciazhar.debouncer.lib.spamchecker.model;
+package com.ciazhar.debouncer.lib.svmchecker.model;
 
 import com.hankcs.hanlp.classification.classifiers.AbstractClassifier;
 import com.hankcs.hanlp.classification.corpus.Document;

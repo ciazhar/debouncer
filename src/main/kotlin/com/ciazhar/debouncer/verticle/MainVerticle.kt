@@ -4,8 +4,8 @@ package com.ciazhar.debouncer.verticle
 import com.ciazhar.debouncer.extension.logger
 import com.ciazhar.debouncer.extension.param
 import com.ciazhar.debouncer.extension.single
-import com.ciazhar.debouncer.lib.domaincheckker.DomainChecker
-import com.ciazhar.debouncer.lib.domaincheckker.model.Dnsbl
+import com.ciazhar.debouncer.lib.dnsblcheckker.DomainChecker
+import com.ciazhar.debouncer.lib.dnsblcheckker.model.Dnsbl
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer

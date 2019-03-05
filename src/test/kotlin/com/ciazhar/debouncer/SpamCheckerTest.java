@@ -1,7 +1,7 @@
 package com.ciazhar.debouncer;
 
-import com.ciazhar.debouncer.lib.spamchecker.model.LinearSVMClassifier;
-import com.ciazhar.debouncer.lib.spamchecker.model.LinearSVMModel;
+import com.ciazhar.debouncer.lib.svmchecker.model.LinearSVMClassifier;
+import com.ciazhar.debouncer.lib.svmchecker.model.LinearSVMModel;
 import com.hankcs.hanlp.classification.classifiers.IClassifier;
 
 import java.io.*;

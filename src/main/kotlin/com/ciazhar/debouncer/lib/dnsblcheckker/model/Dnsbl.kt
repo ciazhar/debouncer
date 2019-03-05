@@ -1,4 +1,4 @@
-package com.ciazhar.debouncer.lib.domaincheckker.model
+package com.ciazhar.debouncer.lib.dnsblcheckker.model
 
 class Dnsbl{
     var name: String = ""
