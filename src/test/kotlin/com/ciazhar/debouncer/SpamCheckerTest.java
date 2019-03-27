@@ -146,7 +146,7 @@ public class SpamCheckerTest {
 
     private static void predict(IClassifier classifier, String text)
     {
-        System.out.printf("《%s》 属于分类 【%s】\n", text, classifier.classify(text));
+        System.out.printf("《%s》 Merupakan 【%s】\n", text, classifier.classify(text));
     }
 
     private static LinearSVMModel trainOrLoadModel() throws IOException
