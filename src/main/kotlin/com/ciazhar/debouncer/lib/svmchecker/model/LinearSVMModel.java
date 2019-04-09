@@ -23,18 +23,6 @@ import de.bwaldvogel.liblinear.Model;
 public class LinearSVMModel extends AbstractModel
 {
     /**
-     * Jumlah sampel pelatihan
-     */
-    public int n = 0;
-    /**
-     * Jumlah kategori
-     */
-    public int c = 0;
-    /**
-     * Jumlah fitur
-     */
-    public int d = 0;
-    /**
      * Alat penghitung berat fitur
      */
     public IFeatureWeighter featureWeighter;
