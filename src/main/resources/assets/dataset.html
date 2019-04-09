@@ -13,7 +13,6 @@
     <!-- Bootstrap core CSS -->
     <link href="https://getbootstrap.com/docs/4.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -37,7 +36,7 @@
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Email Spam Prevention</a>
 </nav>
-<hr>
+
 <div class="container-fluid">
     <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -84,58 +83,38 @@
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-            <div class="row">
-
-                <div class="col-md-8 order-md-1">
-                    <h4 class="mb-3">Email Sender</h4>
-                    <form class="needs-validation" novalidate>
-                        <div class="mb-3">
-                            <label for="host">Mail Server Host</label>
-                            <input type="text" class="form-control" id="host" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Mail Server Host.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Email Address.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Email Address Password.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="host">Receiver Email Address</label>
-                            <input type="email" class="form-control" id="receiver" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Subject.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="host">Subject</label>
-                            <input type="text" class="form-control" id="subject" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Subject.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="host">Body</label>
-                            <textarea class="form-control" id="body" placeholder="" value="" required></textarea>
-                            <div class="invalid-feedback">
-                                Subject.
-                            </div>
-                        </div>
-                        <hr class="mb-4">
-                        <button class="btn btn-primary btn-lg btn-block" type="submit">Send</button>
-                    </form>
-                </div>
-            </div>
+            <hr>
+            <h4 class="mb-3">Dataset List</h4>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                </tr>
+                </tbody>
+            </table>
         </main>
     </div>
 </div>

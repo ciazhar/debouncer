@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.5">
+    <title>Domain Checker</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.3/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://getbootstrap.com/docs/4.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.css" rel="stylesheet">
+</head>
+<style>
+    section {
+        padding: 100px 0;
+        text-align: center;
+    }
+    select.frecuency {
+        border: none;
+        font-style: italic;
+        background-color: transparent;
+        cursor: pointer;
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        -webkit-transition: -webkit-transform .35s ease-in;
+        transition: -webkit-transform .35s ease-in;
+        border-bottom: none;
+    }
+    select.frecuency:focus {
+        outline: none;
+        border-bottom: 5px solid #39b3d7;
+        -webkit-transform: translateY(-5px);
+        transform: translateY(-5px);
+        -webkit-transition: -webkit-transform .35s ease-in;
+        transition: -webkit-transform .35s ease-in;
+    }
+    .free {
+        text-transform: uppercase;
+    }
+    .input-group {
+        margin: 20px auto;
+        width: 100%;
+    }
+    input.btn.btn-lg,
+    input.btn.btn-lg:focus {
+        outline: none;
+        width: 60%;
+        height: 60px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    button.btn {
+        width: 40%;
+        height: 60px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .promise {
+        color: #999;
+    }
+
+    /* Center the loader */
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #39b3d7;
+        border-bottom: 16px solid #39b3d7;
+        width: 120px;
+        height: 120px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+</style>
+<body>
+
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Email Spam Prevention</a>
+</nav>
+
+<div class="container-fluid">
+    <!--<div class="jumbotron">-->
+        <!--<h1>DNSBL Domain Checkker</h1>-->
+
+        <!--<p>Check your domain whether it is blocked in DNSBL or not</p>-->
+    <!--</div>-->
+    <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <span data-feather="home"></span>
+                            Email Sender <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dnsbl.html">
+                            <span data-feather="cloud-off"></span>
+                            DNSBL
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dnsbl-checker.html">
+                            <span data-feather="cloud-off"></span>
+                            DNSBL Checker
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dataset.html">
+                            <span data-feather="database"></span>
+                            Dataset
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="model.html">
+                            <span data-feather="grid"></span>
+                            Model
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="spam-checker.html">
+                            <span data-feather="grid"></span>
+                            Spam Checker
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="col-md-6 col-md-offset-3">
+                <hgroup>
+                    <h1>DNSBL Domain Checkker</h1>
+
+                    <p>Check your domain whether it is blocked in <a href="dnsbl.html">DNSBL</a> or not</p>
+                </hgroup>
+                <div class="well">
+                    <h1 id="dnsbl"></h1>
+
+                    <!--<form action="#">-->
+                    <div class="input-group">
+                        <input class="btn btn-lg" name="domain" id="domain" type="text" placeholder="Your Domain" required>
+                        <button id="formDomain" class="btn btn-info btn-lg" type="submit">Submit</button>
+                    </div>
+                    <!--</form>-->
+
+                    <h1 id="result"></h1>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+<script src="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.js"></script></body>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://getbootstrap.com/docs/4.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function mapResponse(array){
+        var unique = {};
+        var distinct = [];
+        for( var i in array ){
+            if( typeof(unique[array[i].name]) === "undefined"){
+                distinct.push(array[i].name);
+            }
+            unique[array[i].name] = 0;
+        }
+        return distinct
+    }
+
+    $('#formDomain').on("click",function(e) {
+        e.preventDefault()
+
+        var domain = $('#domain').val();
+        $('#dnsbl').append('<div class="loader"></div>')
+        $.getJSON("/api/check-domain?domain="+domain, function (data) {
+            console.log(data)
+        }).done(function (data) {
+            $('.loader').remove();
+            var distinctedData = mapResponse(data)
+            if (data.length==0){
+                $("#result").text("Domain Secure");
+            }else {
+                $("#result").text(domain+" is listed in "+distinctedData);
+            }
+        });
+    })
+</script>
+
+</body>
+</html>
