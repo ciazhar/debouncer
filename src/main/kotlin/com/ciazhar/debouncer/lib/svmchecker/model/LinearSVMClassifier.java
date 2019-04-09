@@ -63,7 +63,7 @@ public class LinearSVMClassifier extends AbstractClassifier
     public void train(IDataSet dataSet)
     {
         if (dataSet.size() == 0) throw new IllegalArgumentException("Kumpulan data pelatihan kosong dan tidak dapat melanjutkan pelatihan");
-        // Fitur seleksi
+        // Fitur seleksi menggunakan
         DfFeatureData featureData = selectFeatures(dataSet);
         // Logika perhitungan berat konstruksi
         IFeatureWeighter weighter = new TfIdfFeatureWeighter(dataSet.size(), featureData.df);
@@ -78,7 +78,7 @@ public class LinearSVMClassifier extends AbstractClassifier
         System.gc();
         // Memecahkan masalah SVM
         Model svmModel = solveLibLinearProblem(problem);
-        // Tinggalkan data yang berguna untuk tinggal
+        // Assign variable
         model = new LinearSVMModel();
         model.tokenizer = tokenizer;
         model.wordIdTrie = wordIdTrie;
@@ -92,16 +92,12 @@ public class LinearSVMClassifier extends AbstractClassifier
         return model;
     }
 
-    private Model solveLibLinearProblem(Problem problem)
-    {
-        de.bwaldvogel.liblinear.Parameter lparam = new Parameter(SolverType.L1R_LR,
-                                                                 500.,
-                                                                 0.01);
-        return de.bwaldvogel.liblinear.Linear.train(problem, lparam);
+    private Model solveLibLinearProblem(Problem problem) {
+        Parameter lparam = new Parameter(SolverType.L1R_LR,500.,0.01);
+        return Linear.train(problem, lparam);
     }
 
-    private Problem createLiblinearProblem(IDataSet dataSet, BaseFeatureData baseFeatureData, IFeatureWeighter weighter)
-    {
+    private Problem createLiblinearProblem(IDataSet dataSet, BaseFeatureData baseFeatureData, IFeatureWeighter weighter) {
         Problem problem = new Problem();
         int n = dataSet.size();
         problem.l = n;
@@ -121,8 +117,7 @@ public class LinearSVMClassifier extends AbstractClassifier
         return problem;
     }
 
-    private FeatureNode[] buildDocumentVector(Document document, IFeatureWeighter weighter)
-    {
+    private FeatureNode[] buildDocumentVector(Document document, IFeatureWeighter weighter) {
         int termCount = document.tfMap.size();  // Jumlah kata
         FeatureNode[] x = new FeatureNode[termCount];
         Iterator<Map.Entry<Integer, int[]>> tfMapIterator = document.tfMap.entrySet().iterator();
@@ -151,18 +146,19 @@ public class LinearSVMClassifier extends AbstractClassifier
         return x;
     }
 
-    protected DfFeatureData selectFeatures(IDataSet dataSet)
-    {
+    protected DfFeatureData selectFeatures(IDataSet dataSet) {
+
+        //Membuat extractor
         ChiSquareFeatureExtractor chiSquareFeatureExtractor = new ChiSquareFeatureExtractor();
 
-        //Objek FeatureStats berisi semua fitur dalam dokumen dan statistiknya
-        DfFeatureData featureData = new DfFeatureData(dataSet); //执行统计
+        //Mengubah dataset mentah menjadi fitur data (yang mengandung inverted DF) dengan menghitung statistiknya
+        DfFeatureData featureData = new DfFeatureData(dataSet);
 
-        logger.start("Gunakan deteksi chi-square untuk memilih fitur ...");
-        //Kami meneruskan statistik ini ke algoritme pemilihan fitur untuk mendapatkan fitur dan nilainya.
+        logger.start("Gunakan deteksi chi-square untuk memilih fitur ...\n");
+        //Meneruskan statistik ini ke algoritme pemilihan fitur untuk mendapatkan fitur dan nilainya.
         Map<Integer, Double> selectedFeatures = chiSquareFeatureExtractor.chi_square(featureData);
 
-        //Hapus fitur yang tidak berguna dari data pelatihan dan rekonstruksi peta fitur
+        //Menghapus fitur yang tidak berguna dari data pelatihan dan rekonstruksi peta fitur
         String[] wordIdArray = dataSet.getLexicon().getWordIdArray();
         int[] idMap = new int[wordIdArray.length];
         Arrays.fill(idMap, -1);
@@ -176,7 +172,7 @@ public class LinearSVMClassifier extends AbstractClassifier
             featureData.df[p] = MathUtility.sum(featureData.featureCategoryJointCount[feature]);
             idMap[feature] = p;
         }
-        logger.finish(",Nomor fitur yang dipilih:%d / %d = %.2f%%\n", selectedFeatures.size(),
+        logger.finish("Jumlah fitur yang dipilih:%d / %d = %.2f%%\n", selectedFeatures.size(),
                       featureData.featureCategoryJointCount.length,
                       MathUtility.percentage(selectedFeatures.size(), featureData.featureCategoryJointCount.length));
         logger.start("Kurangi data pelatihan...");
