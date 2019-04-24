@@ -15,9 +15,9 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 
-class MainVerticle : AbstractVerticle() {
+class DNSBLVerticle : AbstractVerticle() {
 
-    private val log = logger(MainVerticle::class)
+    private val log = logger(DNSBLVerticle::class)
 
     private val config by lazy { config() }
 
@@ -72,7 +72,9 @@ class MainVerticle : AbstractVerticle() {
         val resp = DomainChecker.scrapDnsbl(CSV_FILE_NAME)
 
         //response
-        routingContext.response().setStatusCode(200).end(resp)
+        routingContext.response()
+                .setStatusCode(200)
+                .end(Json.encodePrettily(resp))
     }
 
     private fun readFromCsvEndpoint(routingContext: RoutingContext){
@@ -80,7 +82,10 @@ class MainVerticle : AbstractVerticle() {
         val resp = DomainChecker.getDnsbl(CSV_FILE_NAME)
 
         //response
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
+        routingContext.response()
+                .putHeader("Content-Type","application/json")
+                .setStatusCode(200)
+                .end(Json.encodePrettily(resp))
     }
 
     private fun deleteFromCsv(routingContext: RoutingContext){
@@ -90,7 +95,8 @@ class MainVerticle : AbstractVerticle() {
         //check path variable if exist
         if (id==null){
             routingContext.response().setStatusCode(400).end()
-        }else{
+        }
+        else{
             //delete dnsbl
             DomainChecker.deleteDnsbl(id, CSV_FILE_NAME)
 
@@ -98,7 +104,10 @@ class MainVerticle : AbstractVerticle() {
             val resp = DomainChecker.getDnsbl(CSV_FILE_NAME)
 
             //response
-            routingContext.response().setStatusCode(200).end(Json.encodePrettily(resp))
+            routingContext.response()
+                    .putHeader("Content-Type","application/json")
+                    .setStatusCode(200)
+                    .end(Json.encodePrettily(resp))
         }
     }
 
@@ -111,7 +120,9 @@ class MainVerticle : AbstractVerticle() {
         val res = DomainChecker.addDnsbl(CSV_FILE_NAME,dnsbl)
 
         //response
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(res))
+        routingContext.response()
+                .setStatusCode(200)
+                .end(Json.encodePrettily(res))
     }
 
     private fun checkDomain(routingContext: RoutingContext) {
@@ -133,7 +144,10 @@ class MainVerticle : AbstractVerticle() {
                     .toMutableList()
 
             //response success
-            routingContext.response().setStatusCode(200).end(Json.encodePrettily(blockedFrom))
+            routingContext.response()
+                    .putHeader("Content-Type","application/json")
+                    .setStatusCode(200)
+                    .end(Json.encodePrettily(blockedFrom))
         }
     }
 }
