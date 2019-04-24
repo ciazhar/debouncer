@@ -6,6 +6,8 @@ import com.ciazhar.debouncer.extension.param
 import com.ciazhar.debouncer.extension.single
 import com.ciazhar.debouncer.lib.dnsblcheckker.DomainChecker
 import com.ciazhar.debouncer.lib.dnsblcheckker.model.Dnsbl
+import com.ciazhar.debouncer.lib.emailsender.EmailSender
+import com.ciazhar.debouncer.lib.emailsender.model.Mail
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -15,9 +17,9 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
 
-class DNSBLVerticle : AbstractVerticle() {
+class MainVerticle : AbstractVerticle() {
 
-    private val log = logger(DNSBLVerticle::class)
+    private val log = logger(MainVerticle::class)
 
     private val config by lazy { config() }
 
@@ -36,8 +38,10 @@ class DNSBLVerticle : AbstractVerticle() {
 
         router.get("/api/scrap").handler(this::scrapDnsblCsv)
 
-        router.route("/*").handler(StaticHandler.create("assets"))
+        router.route("/api/email*").handler(BodyHandler.create())
+        router.post("/api/email").handler(this::sendEmail)
 
+        router.route("/*").handler(StaticHandler.create("assets"))
         println("Starting HttpServer...")
         val httpServer = single<HttpServer> { it ->
             vertx.createHttpServer()
@@ -149,5 +153,21 @@ class DNSBLVerticle : AbstractVerticle() {
                     .setStatusCode(200)
                     .end(Json.encodePrettily(blockedFrom))
         }
+    }
+
+    /**
+     *
+     * */
+
+    private fun sendEmail(routingContext: RoutingContext){
+        //request body
+        val mail = Json.decodeValue(routingContext.bodyAsString,
+                Mail::class.java)
+
+        println(mail)
+        EmailSender.sendFromGMail(mail)
+
+        //response
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily("cek"))
     }
 }
