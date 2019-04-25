@@ -29,6 +29,49 @@
                 font-size: 3.5rem;
             }
         }
+        .form-container{
+            padding:10px;
+            padding-bottom:25px;
+            margin:0 auto;
+            margin-top:20px;
+            width:50%;
+            border-radius:20px;
+            background-color: #ececec;
+        }
+
+        .add-one{
+            color:green;
+            text-align:center;
+            font-weigth:bolder;
+            cursor:pointer;
+            margin-top:10px;
+        }
+
+        .delete{
+            color:white;
+            background-color:rgb(231, 76, 60);
+            text-align:center;
+            margin-top:6px;
+            font-weight:700;
+            border-radius:5px;
+            min-width:20px;
+            cursor:pointer;
+        }
+
+        #singlebutton{
+            width:100%;
+            margin-top:20px;
+        }
+
+        .title{
+            text-align:center;
+            font-size:40px;
+            margin-bottom:40px;
+        }
+
+        .dynamic-element{
+            margin-bottom:0px;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.css" rel="stylesheet">
@@ -88,60 +131,137 @@
 
                 <div class="col-md-8 order-md-1">
                     <h4 class="mb-3">Email Sender</h4>
-                    <form class="needs-validation" novalidate>
+                    <!--<form class="needs-validation" novalidate>-->
                         <div class="mb-3">
-                            <label for="host">Mail Server Host</label>
-                            <input type="text" class="form-control" id="host" placeholder="" value="" required>
+                            <label for="host">GMail Email Address</label>
+                            <input type="text" class="form-control" id="host" required>
                             <div class="invalid-feedback">
-                                Mail Server Host.
+                                SMTP Host
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="email">Email Address</label>
-                            <input type="email" class="form-control" id="email" placeholder="" value="" required>
+                            <label for="username">Gmail Email Address</label>
+                            <input type="text" class="form-control" id="username" required>
                             <div class="invalid-feedback">
-                                Email Address.
+                                Gmail Email Address.
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="" value="" required>
+                            <input type="password" class="form-control" id="password" required>
                             <div class="invalid-feedback">
                                 Email Address Password.
                             </div>
                         </div>
+                        <div class="mb-3 form-group">
+                            <label for="recipient">Recipient Email Address</label>
+                            <input type="email" class="form-control" id="recipient" required>
+                            <div class="invalid-feedback">
+                                Subject.
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label for="host">Receiver Email Address</label>
-                            <input type="email" class="form-control" id="receiver" placeholder="" value="" required>
+                            <label for="subject">Subject</label>
+                            <input type="text" class="form-control" id="subject" required>
                             <div class="invalid-feedback">
                                 Subject.
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="host">Subject</label>
-                            <input type="text" class="form-control" id="subject" placeholder="" value="" required>
-                            <div class="invalid-feedback">
-                                Subject.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="host">Body</label>
-                            <textarea class="form-control" id="body" placeholder="" value="" required></textarea>
+                            <label for="body">Body</label>
+                            <textarea class="form-control" id="body" required></textarea>
                             <div class="invalid-feedback">
                                 Subject.
                             </div>
                         </div>
                         <hr class="mb-4">
-                        <button class="btn btn-primary btn-lg btn-block" type="submit">Send</button>
-                    </form>
+                        <button id="formEmail" class="btn btn-primary btn-lg btn-block" type="submit">Send</button>
+                    <!--</form>-->
                 </div>
             </div>
         </main>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/4.3.0/js/bootstrap.min.js"></script>
 <script>window.jQuery || document.write('<script src="https://getbootstrap.com/docs/4.3/assets/js/vendor/jquery-slim.min.js"><\/script>')</script><script src="https://getbootstrap.com/docs/4.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
-<script src="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.js"></script></body>
+<script src="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.js"></script>
+<script>
+    function sendEmail(hostname, username, password, recipient, subject, body) {
+        $.post("/api/email", JSON.stringify({
+            hostname: hostname,
+            username:username,
+            url: url,
+            password:password,
+            recipient:[recipient],
+            subject:subject,
+            body:body
+        }), function () {
+            load();
+        }, "json");
+    }
+
+    //Clone the hidden element and shows it
+    $('.add-one').click(function(){
+        $('.dynamic-element').first().clone().appendTo('.dynamic-stuff').show();
+        attach_delete();
+    });
+
+    //Attach functionality to delete buttons
+    function attach_delete(){
+        $('.delete').off();
+        $('.delete').click(function(){
+            console.log("click");
+            $(this).closest('.form-group').remove();
+        });
+    }
+
+    $('#formEmail').on("click",function(e) {
+        e.preventDefault()
+
+        console.log("log")
+
+        var host = $('#host').val();
+        var username = $('#username').val();
+        var password = $('#password').val();
+        var recipient = $('#recipient').val();
+        var subject = $('#subject').val();
+        var body = $('#body').val();
+
+        $('#dnsbl').append('<div class="loader"></div>')
+
+        /* Get from elements values */
+        var $form = $(this);
+        var $inputs = $form.find("input, select, button, textarea");
+        var serializedData = $form.serialize();
+
+        var values = $(this).serialize();
+
+        $.ajax({
+            url: "/api/email",
+            type: "post",
+            data: JSON.stringify({
+                "host":host,
+                "username":username,
+                "password":password,
+                "recipient":[recipient],
+                "subject":subject,
+                "body":body}),
+
+            success: function (response) {
+                // you will get response from your php page (what you echo or print)
+
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(textStatus, errorThrown);
+            }
+
+
+        });
+    })
+</script>
+</body>
 </html>
