@@ -7,7 +7,7 @@ object EmailSender {
     private val service by lazy { EmailSenderServiceImpl() }
 
     @JvmStatic
-    fun sendFromGMail(mail : Mail) {
-        service.sendFromGMail(mail)
+    fun sendFromGMail(mail : Mail) : String {
+        return service.sendFromGMail(mail)
     }
 }

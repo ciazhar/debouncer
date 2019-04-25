@@ -165,9 +165,10 @@ class MainVerticle : AbstractVerticle() {
                 Mail::class.java)
 
         println(mail)
-        EmailSender.sendFromGMail(mail)
+        val res = EmailSender.sendFromGMail(mail)
 
         //response
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily("cek"))
+        val map = hashMapOf("message" to "ok", "data" to res)
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
     }
 }

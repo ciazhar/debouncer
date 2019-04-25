@@ -8,7 +8,7 @@ import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
 
 class EmailSenderServiceImpl : EmailSenderService {
-    override fun sendFromGMail(mail : Mail) {
+    override fun sendFromGMail(mail : Mail) :  String {
         val props = System.getProperties()
         props["mail.smtp.starttls.enable"] = "true"
         props["mail.smtp.host"] = mail.host
@@ -41,8 +41,9 @@ class EmailSenderServiceImpl : EmailSenderService {
             transport.close()
         } catch (me: MessagingException) {
             me.printStackTrace()
+            return me.message.toString()
         }
-
+    return "success"
     }
 
 }
