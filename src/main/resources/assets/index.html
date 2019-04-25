@@ -12,67 +12,6 @@
 
     <!-- Bootstrap core CSS -->
     <link href="https://getbootstrap.com/docs/4.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-        .form-container{
-            padding:10px;
-            padding-bottom:25px;
-            margin:0 auto;
-            margin-top:20px;
-            width:50%;
-            border-radius:20px;
-            background-color: #ececec;
-        }
-
-        .add-one{
-            color:green;
-            text-align:center;
-            font-weigth:bolder;
-            cursor:pointer;
-            margin-top:10px;
-        }
-
-        .delete{
-            color:white;
-            background-color:rgb(231, 76, 60);
-            text-align:center;
-            margin-top:6px;
-            font-weight:700;
-            border-radius:5px;
-            min-width:20px;
-            cursor:pointer;
-        }
-
-        #singlebutton{
-            width:100%;
-            margin-top:20px;
-        }
-
-        .title{
-            text-align:center;
-            font-size:40px;
-            margin-bottom:40px;
-        }
-
-        .dynamic-element{
-            margin-bottom:0px;
-        }
-    </style>
     <!-- Custom styles for this template -->
     <link href="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.css" rel="stylesheet">
 </head>
@@ -190,39 +129,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 <script src="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.js"></script>
 <script>
-    function sendEmail(hostname, username, password, recipient, subject, body) {
-        $.post("/api/email", JSON.stringify({
-            hostname: hostname,
-            username:username,
-            url: url,
-            password:password,
-            recipient:[recipient],
-            subject:subject,
-            body:body
-        }), function () {
-            load();
-        }, "json");
-    }
-
-    //Clone the hidden element and shows it
-    $('.add-one').click(function(){
-        $('.dynamic-element').first().clone().appendTo('.dynamic-stuff').show();
-        attach_delete();
-    });
-
-    //Attach functionality to delete buttons
-    function attach_delete(){
-        $('.delete').off();
-        $('.delete').click(function(){
-            console.log("click");
-            $(this).closest('.form-group').remove();
-        });
-    }
 
     $('#formEmail').on("click",function(e) {
         e.preventDefault()
-
-        console.log("log")
 
         var host = $('#host').val();
         var username = $('#username').val();
@@ -230,15 +139,6 @@
         var recipient = $('#recipient').val();
         var subject = $('#subject').val();
         var body = $('#body').val();
-
-        $('#dnsbl').append('<div class="loader"></div>')
-
-        /* Get from elements values */
-        var $form = $(this);
-        var $inputs = $form.find("input, select, button, textarea");
-        var serializedData = $form.serialize();
-
-        var values = $(this).serialize();
 
         $.ajax({
             url: "/api/email",
