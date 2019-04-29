@@ -1,6 +1,6 @@
-package com.ciazhar.debouncer.lib.emailaddresschecker.service
+package com.ciazhar.debouncer.lib.dnsemailaddresschecker.service
 
-import com.ciazhar.debouncer.lib.emailaddresschecker.model.AddressStatus
+import com.ciazhar.debouncer.lib.dnsemailaddresschecker.model.AddressStatus
 import org.xbill.DNS.Lookup
 import org.xbill.DNS.MXRecord
 import org.xbill.DNS.TextParseException
@@ -15,17 +15,10 @@ class EmailAddressCheckerServiceImpl : EmailAddressCheckerService{
 
     override fun validate(mailAddress: String) :AddressStatus {
         val domain = getDomain(mailAddress) ?: return AddressStatus.wrongSchema.setMailAddress(mailAddress)
-        val user = getUser(mailAddress) ?: return AddressStatus.wrongSchema.setMailAddress(mailAddress)
 
         return try {
             if (!isDnsValid(domain)) {
                 AddressStatus.noMxRecord.setMailAddress(mailAddress)
-            }
-//            else if (!isVrfyValid(user)){
-//                AddressStatus.notRegistered.setMailAddress(mailAddress)
-//            }
-            else if (!isExistsOnGmailOutlookOrYahoo(mailAddress)){
-                AddressStatus.notExistsInGmailOrYahooOrOutlook.setMailAddress(mailAddress)
             }
             else{
                 AddressStatus.valid.setMailAddress(mailAddress)
@@ -70,18 +63,6 @@ class EmailAddressCheckerServiceImpl : EmailAddressCheckerService{
         } catch (e: TextParseException) {
             e.printStackTrace()
         }
-        return false
-    }
-
-    private fun isVrfyValid(username : String ) : Boolean{
-        return false
-    }
-
-    private fun isExistsOnGmailOutlookOrYahoo(email : String) : Boolean{
-//        val result = Email.check(email)
-//        if (result.isExist){
-//            return true
-//        }
         return false
     }
 }

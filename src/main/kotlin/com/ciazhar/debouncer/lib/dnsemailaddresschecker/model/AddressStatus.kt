@@ -1,4 +1,4 @@
-package com.ciazhar.debouncer.lib.emailaddresschecker.model
+package com.ciazhar.debouncer.lib.dnsemailaddresschecker.model
 
 enum class AddressStatus {
     /// absolutely valid

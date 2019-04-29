@@ -1,6 +1,6 @@
 package com.ciazhar.debouncer
 
-import com.ciazhar.debouncer.lib.emailaddresschecker.MailAddressVerifier
+import com.ciazhar.debouncer.lib.dnsemailaddresschecker.MailAddressVerifier
 import org.junit.Test
 
 class EmailAddressChecker{
