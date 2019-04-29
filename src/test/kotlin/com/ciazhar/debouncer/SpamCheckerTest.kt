@@ -1,20 +1,14 @@
 package com.ciazhar.debouncer
 
-import com.ciazhar.debouncer.lib.svmchecker.model.LinearSVM
+import com.ciazhar.debouncer.lib.svmchecker.SpamChecker
 import com.ciazhar.debouncer.lib.svmchecker.service.SVMCheckerService
-import com.hankcs.hanlp.classification.classifiers.IClassifier
 import org.junit.Test
-import java.io.*
 
 class SpamCheckerTest {
-    val CORPUS_FOLDER = "data/dataset"
-    val MODEL_PATH = "data/svm-classification-model.ser"
-
     @Test
     fun spamCheck() {
 
-        val classifier = SVMCheckerService(trainOrLoadModel())
-        predict(classifier, "Return-Path: <tqznmzkkdnayh@getherbalnow.info>\n" +
+        val text = "Return-Path: <tqznmzkkdnayh@getherbalnow.info>\n" +
                 "Delivered-To: rait@bruce-guenter.dyndns.org\n" +
                 "Received: (qmail 26496 invoked from network); 1 Feb 2005 00:25:05 -0000\n" +
                 "Received: from localhost (localhost [127.0.0.1])\n" +
@@ -71,55 +65,10 @@ class SpamCheckerTest {
                 "http://dfbeky-wr.com/rm.php?sash99 \n" +
                 "\n" +
                 "\n" +
-                "----5706099938399901743--\n")
+                "----5706099938399901743--\n"
+
+        val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
+        SpamChecker.predict(classifier, text)
     }
 
-    private fun predict(classifier: IClassifier, text: String) {
-        System.out.printf("《%s》 Merupakan 【%s】\n", text, classifier.classify(text))
-    }
-
-    @Throws(IOException::class)
-    private fun trainOrLoadModel(): LinearSVM? {
-        var model = readObjectFrom(MODEL_PATH) as LinearSVM?
-        if (model != null) return model
-
-        val corpusFolder = File(CORPUS_FOLDER)
-        if (!corpusFolder.exists() || !corpusFolder.isDirectory) {
-            println("Tanpa corpus teks, harap baca format corpus dan unduhan corpus yang didefinisikan dalam IClassifier.train (java.lang.String)：" + "https://github.com/hankcs/HanLP/wiki/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%B8%8E%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90")
-            System.exit(1)
-        }
-
-        val classifier = SVMCheckerService()  // Buat classifier. Untuk fungsi lebih lanjut, silakan merujuk ke definisi antarmuka IClassifier.
-        classifier.train(CORPUS_FOLDER)                     // Model yang terlatih mendukung ketekunan dan tidak harus dilatih lain kali.
-        model = classifier.model
-        saveObjectTo(model, MODEL_PATH)
-        return model
-    }
-
-    fun saveObjectTo(o: Any?, path: String): Boolean {
-        try {
-            val oos = ObjectOutputStream(FileOutputStream(path))
-            oos.writeObject(o)
-            oos.close()
-        } catch (e: IOException) {
-            println("Pengecualian terjadi saat menyimpan objek $o ke $path$e")
-            return false
-        }
-
-        return true
-    }
-
-    fun readObjectFrom(path: String): Any? {
-        var ois: ObjectInputStream? = null
-        try {
-            ois = ObjectInputStream(FileInputStream(path))
-            val o = ois.readObject()
-            ois.close()
-            return o
-        } catch (e: Exception) {
-            println("Dari $path pengecualian terjadi saat membaca objek $e")
-        }
-
-        return null
-    }
 }

@@ -1,7 +1,10 @@
 package com.ciazhar.debouncer.lib.svmchecker.service
 
 import com.ciazhar.debouncer.lib.svmchecker.model.LinearSVM
+import com.ciazhar.debouncer.lib.svmchecker.util.readObjectFrom
+import com.ciazhar.debouncer.lib.svmchecker.util.saveObjectTo
 import com.hankcs.hanlp.classification.classifiers.AbstractClassifier
+import com.hankcs.hanlp.classification.classifiers.IClassifier
 import com.hankcs.hanlp.classification.corpus.Document
 import com.hankcs.hanlp.classification.corpus.IDataSet
 import com.hankcs.hanlp.classification.features.*
@@ -9,12 +12,16 @@ import com.hankcs.hanlp.classification.models.AbstractModel
 import com.hankcs.hanlp.classification.utilities.MathUtility
 import com.hankcs.hanlp.collection.trie.bintrie.BinTrie
 import de.bwaldvogel.liblinear.*
+import java.io.File
+import java.io.IOException
 import java.util.*
 
 class SVMCheckerService : AbstractClassifier {
     internal var model: LinearSVM? = null
+    val CORPUS_FOLDER = "data/dataset"
+    val MODEL_PATH = "data/svm-classification-model.ser"
 
-    constructor() {}
+    constructor()
 
     constructor(model: LinearSVM?) {
         this.model = model
@@ -44,20 +51,17 @@ class SVMCheckerService : AbstractClassifier {
     }
 
     override fun train(dataSet: IDataSet?) {
-        var dataSet = dataSet
         if (dataSet!!.size() == 0) throw IllegalArgumentException("Kumpulan data pelatihan kosong dan tidak dapat melanjutkan pelatihan")
         // Fitur seleksi menggunakan
-        var featureData: DfFeatureData? = selectFeatures(dataSet)
+        val featureData: DfFeatureData? = selectFeatures(dataSet)
         // Logika perhitungan berat konstruksi
         val weighter = TfIdfFeatureWeighter(dataSet.size(), featureData!!.df)
         // Membangun masalah SVM
         val problem = createLiblinearProblem(dataSet, featureData, weighter)
         // Memori bebas
         val wordIdTrie = featureData.wordIdTrie
-        featureData = null
         val tokenizer = dataSet.tokenizer
         val catalog = dataSet.catalog.toArray()
-        dataSet = null
         System.gc()
         // Memecahkan masalah SVM
         val svmModel = solveLibLinearProblem(problem)
@@ -124,7 +128,7 @@ class SVMCheckerService : AbstractClassifier {
         return x
     }
 
-    protected fun selectFeatures(dataSet: IDataSet): DfFeatureData {
+    private fun selectFeatures(dataSet: IDataSet): DfFeatureData {
 
         //Membuat extractor
         val chiSquareFeatureExtractor = ChiSquareFeatureExtractor()
@@ -157,10 +161,32 @@ class SVMCheckerService : AbstractClassifier {
         println("Kurangi data pelatihan...")
         val n = dataSet.size()
         dataSet.shrink(idMap)
-        var datasetYangDikurangi = n - dataSet.size()
+        val datasetYangDikurangi = n - dataSet.size()
 
         println("Mengurangi"+ datasetYangDikurangi + "sampel, "+ dataSet.size() + "sampel yang tersisa\n")
 
         return featureData
+    }
+
+    fun predict(classifier: IClassifier, text: String) {
+        System.out.printf("《%s》 Merupakan 【%s】\n", text, classifier.classify(text))
+    }
+
+    @Throws(IOException::class)
+    fun trainOrLoadModel(): LinearSVM? {
+        var model = readObjectFrom(MODEL_PATH) as LinearSVM?
+        if (model != null) return model
+
+        val corpusFolder = File(CORPUS_FOLDER)
+        if (!corpusFolder.exists() || !corpusFolder.isDirectory) {
+            println("Tanpa corpus teks, harap baca format corpus dan unduhan corpus yang didefinisikan dalam IClassifier.train (java.lang.String)：" + "https://github.com/hankcs/HanLP/wiki/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%B8%8E%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90")
+            System.exit(1)
+        }
+
+        val classifier = SVMCheckerService(model)  // Buat classifier. Untuk fungsi lebih lanjut, silakan merujuk ke definisi antarmuka IClassifier.
+        classifier.train(CORPUS_FOLDER)                     // Model yang terlatih mendukung ketekunan dan tidak harus dilatih lain kali.
+        model = classifier.model
+        saveObjectTo(model, MODEL_PATH)
+        return model
     }
 }
