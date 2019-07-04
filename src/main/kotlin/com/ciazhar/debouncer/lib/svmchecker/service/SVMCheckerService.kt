@@ -52,12 +52,52 @@ class SVMCheckerService : AbstractClassifier {
 
     override fun train(dataSet: IDataSet?) {
         if (dataSet!!.size() == 0) throw IllegalArgumentException("Kumpulan data pelatihan kosong dan tidak dapat melanjutkan pelatihan")
+
+        println("STEP 1")
+        println("Lexicon size :")
+        println(dataSet.lexicon.size())
+        println("Catalog size :")
+        println(dataSet.catalog.size())
+
+        println("Catalog :")
+        dataSet.catalog.toArray().forEach {
+            println(it.toString())
+        }
+        println("Word ID :")
+        println(dataSet.lexicon.wordId)
+        println("ID Word :")
+        println(dataSet.lexicon.idWord)
+        println("Dataset :")
+        println(dataSet.isTestingDataSet)
+
+        dataSet.forEach {
+            println("Category :")
+            println(it.category)
+            println("Map :")
+            println("size" +it.tfMap.size)
+            it.tfMap.forEach{
+                print(it.key)
+                print(" : ")
+                it.value.forEach {
+                    print(it)
+                }
+
+                println()
+            }
+            println()
+        }
+
         // Fitur seleksi menggunakan
         val featureData: DfFeatureData? = selectFeatures(dataSet)
         // Logika perhitungan berat konstruksi
         val weighter = TfIdfFeatureWeighter(dataSet.size(), featureData!!.df)
         // Membangun masalah SVM
         val problem = createLiblinearProblem(dataSet, featureData, weighter)
+
+//        problem.y.forEach {
+//            println(it)
+//        }
+
         // Memori bebas
         val wordIdTrie = featureData.wordIdTrie
         val tokenizer = dataSet.tokenizer
@@ -97,6 +137,7 @@ class SVMCheckerService : AbstractClassifier {
             problem.x[i] = buildDocumentVector(document, weighter)
             // Tetapkan nilai y sampel
             problem.y[i] = document.category.toDouble()
+            println(problem.y[i])
         }
 
         return problem
@@ -129,12 +170,32 @@ class SVMCheckerService : AbstractClassifier {
     }
 
     private fun selectFeatures(dataSet: IDataSet): DfFeatureData {
+        //Mengubah dataset mentah menjadi fitur data (yang mengandung inverted DF) dengan menghitung statistiknya
+        val featureData = DfFeatureData(dataSet)
+
+//        println("STEP 2")
+//        println("DF : ")
+//        println(featureData.df)
+//        println("Category Count : ")
+//        featureData.categoryCounts.forEach {
+//            println(it)
+//        }
+//        println("Feature Category Joint Count : ")
+//        featureData.featureCategoryJointCount.forEach {
+//            println("index : ")
+//            it.forEach {
+//                print(it)
+//                print(",")
+//            }
+//            println("")
+//        }
+//        println("N : ")
+//        println(featureData.n)
+//        println("Word Id Trie : ")
+//        println(featureData.wordIdTrie)
 
         //Membuat extractor
         val chiSquareFeatureExtractor = ChiSquareFeatureExtractor()
-
-        //Mengubah dataset mentah menjadi fitur data (yang mengandung inverted DF) dengan menghitung statistiknya
-        val featureData = DfFeatureData(dataSet)
 
         println("Gunakan deteksi chi-square untuk memilih fitur ...\n")
         //Meneruskan statistik ini ke algoritme pemilihan fitur untuk mendapatkan fitur dan nilainya.
@@ -156,8 +217,8 @@ class SVMCheckerService : AbstractClassifier {
         println("Jumlah fitur yang dipilih : "+ selectedFeatures.size +
                 "/"+ featureData.featureCategoryJointCount.size +
                 "= "+MathUtility.percentage(
-                    selectedFeatures.size.toDouble(),
-                    featureData.featureCategoryJointCount.size.toDouble())+ "\n")
+                selectedFeatures.size.toDouble(),
+                featureData.featureCategoryJointCount.size.toDouble())+ "\n")
         println("Kurangi data pelatihan...")
         val n = dataSet.size()
         dataSet.shrink(idMap)
@@ -165,11 +226,34 @@ class SVMCheckerService : AbstractClassifier {
 
         println("Mengurangi"+ datasetYangDikurangi + "sampel, "+ dataSet.size() + "sampel yang tersisa\n")
 
+//        println("STEP 3")
+////        println("DF : ")
+////        featureData.df.forEach {
+////            println(it)
+////        }
+//        println("Category Count : ")
+//        featureData.categoryCounts.forEach {
+//            println(it)
+//        }
+//        println("Feature Category Joint Count : ")
+//        featureData.featureCategoryJointCount.forEach {
+//            println("index : ")
+//            it.forEach {
+//                print(it)
+//                print(",")
+//            }
+//            println("")
+//        }
+//        println("N : ")
+//        println(featureData.n)
+//        println("Word Id Trie : ")
+//        println(featureData.wordIdTrie.size())
+
         return featureData
     }
 
-    fun predict(classifier: IClassifier, text: String) {
-        System.out.printf("《%s》 Merupakan 【%s】\n", text, classifier.classify(text))
+    fun predict(classifier: IClassifier, text: String) : String {
+        return classifier.classify(text)
     }
 
     @Throws(IOException::class)

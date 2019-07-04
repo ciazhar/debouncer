@@ -8,7 +8,7 @@ object SpamChecker {
     private val service by lazy { SVMCheckerService() }
 
     @JvmStatic
-    fun predict(classifier: IClassifier, text: String){
+    fun predict(classifier: IClassifier, text: String) : String {
         return service.predict(classifier,text)
     }
 
