@@ -9,6 +9,9 @@ class Mail{
     var body: String = ""
 
     constructor()
+    constructor(body: String) {
+        this.body = body
+    }
     constructor(host: String, username: String, password: String, recipient: Array<String>, subject: String, body: String) {
         this.host = host
         this.username = username
