@@ -8,6 +8,8 @@ import com.ciazhar.debouncer.lib.dnsblcheckker.DomainChecker
 import com.ciazhar.debouncer.lib.dnsblcheckker.model.Dnsbl
 import com.ciazhar.debouncer.lib.emailsender.EmailSender
 import com.ciazhar.debouncer.lib.emailsender.model.Mail
+import com.ciazhar.debouncer.lib.svmchecker.SpamChecker
+import com.ciazhar.debouncer.lib.svmchecker.service.SVMCheckerService
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.http.HttpServer
@@ -40,6 +42,9 @@ class MainVerticle : AbstractVerticle() {
 
         router.route("/api/email*").handler(BodyHandler.create())
         router.post("/api/email").handler(this::sendEmail)
+
+        router.route("/api/spam*").handler(BodyHandler.create())
+        router.post("/api/spam").handler(this::checkContentSpam)
 
         router.route("/*").handler(StaticHandler.create("assets"))
         println("Starting HttpServer...")
@@ -169,6 +174,19 @@ class MainVerticle : AbstractVerticle() {
 
         //response
         val map = hashMapOf("message" to "ok", "data" to res)
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
+    }
+
+    private fun checkContentSpam(routingContext: RoutingContext){
+        //request body
+        val mail = Json.decodeValue(routingContext.bodyAsString,
+                Mail::class.java)
+
+        val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
+        val result = SpamChecker.predict(classifier, mail.body)
+
+        //response
+        val map = hashMapOf("message" to "ok", "data" to result)
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
     }
 }
