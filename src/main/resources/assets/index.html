@@ -28,7 +28,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="index.html">
                             <span data-feather="home"></span>
-                            Email Sender <span class="sr-only">(current)</span>
+                            Email Spam Checker <span class="sr-only">(current)</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -43,18 +43,18 @@
                             DNSBL Checker
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="dataset.html">
-                            <span data-feather="database"></span>
-                            Dataset
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="model.html">
-                            <span data-feather="grid"></span>
-                            Model
-                        </a>
-                    </li>
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="temp/dataset.html">-->
+<!--                            <span data-feather="database"></span>-->
+<!--                            Dataset-->
+<!--                        </a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="temp/model.html">-->
+<!--                            <span data-feather="grid"></span>-->
+<!--                            Model-->
+<!--                        </a>-->
+<!--                    </li>-->
                     <li class="nav-item">
                         <a class="nav-link" href="spam-checker.html">
                             <span data-feather="grid"></span>
@@ -72,14 +72,14 @@
                     <h4 class="mb-3">Email Sender</h4>
                     <!--<form class="needs-validation" novalidate>-->
                         <div class="mb-3">
-                            <label for="host">GMail Email Address</label>
-                            <input type="text" class="form-control" id="host" required>
+                            <label for="host">SMTP Host</label>
+                            <input type="text" class="form-control" id="host" value="smtp.gmail.com" readonly>
                             <div class="invalid-feedback">
                                 SMTP Host
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="username">Gmail Email Address</label>
+                            <label for="username">Gmail Username</label>
                             <input type="text" class="form-control" id="username" required>
                             <div class="invalid-feedback">
                                 Gmail Email Address.
