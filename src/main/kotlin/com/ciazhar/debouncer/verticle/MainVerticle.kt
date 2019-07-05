@@ -186,7 +186,7 @@ class MainVerticle : AbstractVerticle() {
         //request body
         val mail = Json.decodeValue(routingContext.bodyAsString,
                 Mail::class.java)
-        var bodyRes = "success"
+        var bodyRes = "Email is secure and succesfully sent"
         val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
 
         //check domain email sender
@@ -195,9 +195,9 @@ class MainVerticle : AbstractVerticle() {
         //check domain email recipient
         mail.recipient.forEach {
             val arr = it.split("@")
-            if (arr.isNotEmpty()){
+            if (arr[1].isNotEmpty()){
                 try {
-                    val res = DomainChecker.checkDomain(it)
+                    val res = DomainChecker.checkDomain(arr[1])
                     if (res.size!=0) {
                         bodyRes="$it is blocked in $res"
                         val map = hashMapOf("message" to "ok", "data" to bodyRes)
