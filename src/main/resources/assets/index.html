@@ -15,6 +15,56 @@
     <!-- Custom styles for this template -->
     <link href="https://getbootstrap.com/docs/4.3/examples/dashboard/dashboard.css" rel="stylesheet">
 </head>
+<style>
+    section {
+        padding: 100px 0;
+        text-align: center;
+    }
+    .input-group {
+        margin: 20px auto;
+        width: 100%;
+    }
+    input.btn.btn-lg,
+    input.btn.btn-lg:focus {
+        outline: none;
+        width: 60%;
+        height: 60px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    button.btn {
+        width: 40%;
+        height: 60px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    /* Center the loader */
+    .loader {
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #39b3d7;
+        border-bottom: 16px solid #39b3d7;
+        width: 120px;
+        height: 120px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+</style>
 <body>
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
     <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Email Spam Prevention</a>
@@ -104,6 +154,8 @@
                         </div>
                         <hr class="mb-4">
                         <button id="formEmail" class="btn btn-primary btn-lg btn-block" type="submit">Send</button>
+                        <h1 id="dnsbl"></h1>
+                        <h1 id="result"></h1>
                     <!--</form>-->
                 </div>
             </div>
@@ -128,6 +180,7 @@
         var subject = $('#subject').val();
         var body = $('#body').val();
 
+        $('#dnsbl').append('<div class="loader"></div>')
         $.ajax({
             url: "/api/email",
             type: "post",
@@ -140,14 +193,14 @@
                 "body":body}),
 
             success: function (response) {
-                // you will get response from your php page (what you echo or print)
-
+                var t = JSON.parse(response);
+                $('.loader').remove();
+                $("#result").text('Result : '+t['data']);
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                $('.loader').remove();
                 console.log(textStatus, errorThrown);
             }
-
-
         });
     })
 </script>
