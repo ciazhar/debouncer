@@ -18,6 +18,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.StaticHandler
+import java.lang.Exception
 
 class MainVerticle : AbstractVerticle() {
 
@@ -69,7 +70,7 @@ class MainVerticle : AbstractVerticle() {
     }
 
     /**
-     * CSV
+     * DNSBL
      */
 
     companion object {
@@ -161,21 +162,8 @@ class MainVerticle : AbstractVerticle() {
     }
 
     /**
-     *
-     * */
-
-    private fun sendEmail(routingContext: RoutingContext){
-        //request body
-        val mail = Json.decodeValue(routingContext.bodyAsString,
-                Mail::class.java)
-
-        println(mail)
-        val res = EmailSender.sendFromGMail(mail)
-
-        //response
-        val map = hashMapOf("message" to "ok", "data" to res)
-        routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
-    }
+     * Spam
+     */
 
     private fun checkContentSpam(routingContext: RoutingContext){
         //request body
@@ -187,6 +175,70 @@ class MainVerticle : AbstractVerticle() {
 
         //response
         val map = hashMapOf("message" to "ok", "data" to result)
+        routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
+    }
+
+    /**
+     * Email
+     * */
+
+    private fun sendEmail(routingContext: RoutingContext){
+        //request body
+        val mail = Json.decodeValue(routingContext.bodyAsString,
+                Mail::class.java)
+        var bodyRes = "success"
+        val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
+
+        //check domain email recipient
+        mail.recipient.forEach {
+            val arr = it.split("@")
+            if (arr.isNotEmpty()){
+                try {
+                    val res = DomainChecker.checkDomain(it)
+                    if (res.size!=0) {
+                        bodyRes="$it is blocked in $res"
+                        val map = hashMapOf("message" to "ok", "data" to bodyRes)
+                        routingContext.response().setStatusCode(500).end(Json.encodePrettily(map))
+                        return
+                    }
+                }catch (e : Exception){
+                    bodyRes= e.message.toString()
+                    val map = hashMapOf("message" to "ok", "data" to bodyRes)
+                    routingContext.response().setStatusCode(500).end(Json.encodePrettily(map))
+                    return
+                }
+            }
+        }
+
+        //check spam subject email
+        var res = SpamChecker.predict(classifier,mail.subject)
+        if (res=="spam"){
+            bodyRes="Email subject considered as spam"
+            val map = hashMapOf("message" to "ok", "data" to bodyRes)
+            routingContext.response().setStatusCode(500).end(Json.encodePrettily(map))
+            return
+        }
+
+        //check spam body email
+        res = SpamChecker.predict(classifier,mail.body)
+        if (res=="spam"){
+            bodyRes="Email body considered as spam"
+            val map = hashMapOf("message" to "ok", "data" to bodyRes)
+            routingContext.response().setStatusCode(500).end(Json.encodePrettily(map))
+            return
+        }
+
+        //send email
+        res = EmailSender.sendFromGMail(mail)
+        if (res!="success"){
+            bodyRes=res
+            val map = hashMapOf("message" to "ok", "data" to bodyRes)
+            routingContext.response().setStatusCode(500).end(Json.encodePrettily(map))
+            return
+        }
+
+        //response
+        val map = hashMapOf("message" to "ok", "data" to bodyRes)
         routingContext.response().setStatusCode(200).end(Json.encodePrettily(map))
     }
 }
