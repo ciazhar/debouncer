@@ -189,6 +189,9 @@ class MainVerticle : AbstractVerticle() {
         var bodyRes = "success"
         val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
 
+        //check domain email sender
+        //because of the domain sender default is gmail, so i skip this step
+
         //check domain email recipient
         mail.recipient.forEach {
             val arr = it.split("@")
