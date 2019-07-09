@@ -15,17 +15,37 @@ import rx.schedulers.Schedulers
  */
 class DomainCheckerServiceImpl : DomainCheckerService {
 
+    fun html2text(html: String): String {
+        return Jsoup.parse(html).text()
+    }
+
     override fun scrapDnsbl(fileName : String) : String {
         //init dnsbl list
         var dnsblList : List<Dnsbl> = readFromCsv(fileName)
+        val dnsbls : MutableList<Dnsbl> = mutableListOf()
 
         //scrap
-        val doc = Jsoup.connect("https://www.dnsbl.info/dnsbl-list.php").get()
-        val dnsbls : MutableList<Dnsbl> = mutableListOf()
-        doc.select("td[width='33%']").forEach {
-            dnsbls.add(Dnsbl(
-                    name = it.select("a").text()
-            ))
+        val doc = Jsoup.connect("https://en.m.wikipedia.org/wiki/Comparison_of_DNS_blacklists").get()
+        val table = doc.select("table").get(2)
+        val rows = table.select("tr")
+
+        for (i in 1 until rows.size) { //first row is the col names so skip it.
+            val row = rows.get(i)
+            val cols = row.select("td")
+            val dnsbl = html2text(cols.get(0).html()).split(" ")[0]
+            if (    !dnsbl.contains("ahbl.org")&&
+                    !dnsbl.contains("orbitrbl.com")&&
+                    !dnsbl.contains("Paid")&&
+                    !dnsbl.contains("proxybl.org")&&
+                    !dnsbl.contains("spamcannibal.org")&&
+                    !dnsbl.contains("drand.net")&&
+                    !dnsbl.contains("surgate.net")&&
+                    !dnsbl.contains("quorum.to")
+            ){
+                dnsbls.add(Dnsbl(
+                        name = dnsbl
+                ))
+            }
         }
 
         //read from csv and update
