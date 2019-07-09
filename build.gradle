@@ -70,6 +70,8 @@ dependencies {
     //mail
     compile 'com.sun.mail:javax.mail:1.6.1'
 
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
     compile "com.fasterxml.jackson.module:jackson-module-parameter-names:$jacksonVersion"
