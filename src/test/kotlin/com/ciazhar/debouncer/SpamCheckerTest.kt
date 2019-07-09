@@ -3,6 +3,20 @@ package com.ciazhar.debouncer
 import com.ciazhar.debouncer.lib.svmchecker.SpamChecker
 import com.ciazhar.debouncer.lib.svmchecker.service.SVMCheckerService
 import org.junit.Test
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.Files.isRegularFile
+import jdk.nashorn.internal.objects.NativeArray.forEach
+import java.util.function.Predicate
+import java.util.stream.Stream
+import io.vertx.ext.web.impl.Utils.readFileToString
+import com.google.common.io.Files.isFile
+import org.apache.commons.io.FileUtils
+import java.io.File
+
+
+
+
 
 class SpamCheckerTest {
     @Test
@@ -71,4 +85,52 @@ class SpamCheckerTest {
         SpamChecker.predict(classifier, text)
     }
 
+    @Test
+    fun confussionMatrix(){
+
+        val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
+
+        var hamHam = 0
+        var hamSpam = 0
+        var spamHam = 0
+        var spamSpam = 0
+
+        val CORPUS_FOLDER = "data/test-dataset"
+        val corpusFolder = File(CORPUS_FOLDER)
+        if (!corpusFolder.exists() || !corpusFolder.isDirectory) {
+            println("Tanpa corpus teks, harap baca format corpus dan unduhan corpus yang didefinisikan dalam IClassifier.train (java.lang.String)：" + "https://github.com/hankcs/HanLP/wiki/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%B8%8E%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90")
+            System.exit(1)
+        }
+        if (!corpusFolder.exists()) throw IllegalArgumentException(String.format("目录 %s 不存在", corpusFolder.getAbsolutePath()))
+        if (!corpusFolder.isDirectory())
+            throw IllegalArgumentException(String.format("目录 %s 不是一个目录", corpusFolder.getAbsolutePath()))
+        val folders = corpusFolder.listFiles() ?: return
+
+        folders.forEach {
+            var category = it.name
+            if (it.isFile()) return
+            val files = it.listFiles() ?: return
+            files.forEach {
+                val content = FileUtils.readFileToString(it)
+
+                if (category=="ham"){
+                    if (SpamChecker.predict(classifier, content)=="ham"){
+                        hamHam++
+                    }else{
+                        hamSpam++
+                    }
+                }else if (category=="spam"){
+                    if (SpamChecker.predict(classifier, content)=="ham"){
+                        spamHam++
+                    }else{
+                        spamSpam++
+                    }
+                }
+            }
+        }
+        println("HAM HAM : $hamHam")
+        println("HAM SPAM : $hamSpam")
+        println("SPAM HAM : $spamHam")
+        println("SPAM SPAM : $spamSpam")
+    }
 }
