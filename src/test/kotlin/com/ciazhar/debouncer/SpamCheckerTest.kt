@@ -3,19 +3,9 @@ package com.ciazhar.debouncer
 import com.ciazhar.debouncer.lib.svmchecker.SpamChecker
 import com.ciazhar.debouncer.lib.svmchecker.service.SVMCheckerService
 import org.junit.Test
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.Files.isRegularFile
-import jdk.nashorn.internal.objects.NativeArray.forEach
-import java.util.function.Predicate
-import java.util.stream.Stream
-import io.vertx.ext.web.impl.Utils.readFileToString
-import com.google.common.io.Files.isFile
 import org.apache.commons.io.FileUtils
 import java.io.File
-
-
-
+import java.util.concurrent.ThreadLocalRandom
 
 
 class SpamCheckerTest {
@@ -86,7 +76,7 @@ class SpamCheckerTest {
     }
 
     @Test
-    fun confussionMatrix(){
+    fun confussionMatrix() {
 
         val classifier = SVMCheckerService(SpamChecker.trainOrLoadModel())
 
@@ -95,34 +85,37 @@ class SpamCheckerTest {
         var spamHam = 0
         var spamSpam = 0
 
+        //cek corpus
         val CORPUS_FOLDER = "data/test-dataset"
         val corpusFolder = File(CORPUS_FOLDER)
-        if (!corpusFolder.exists() || !corpusFolder.isDirectory) {
-            println("Tanpa corpus teks, harap baca format corpus dan unduhan corpus yang didefinisikan dalam IClassifier.train (java.lang.String)：" + "https://github.com/hankcs/HanLP/wiki/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%B8%8E%E6%83%85%E6%84%9F%E5%88%86%E6%9E%90")
-            System.exit(1)
-        }
-        if (!corpusFolder.exists()) throw IllegalArgumentException(String.format("目录 %s 不存在", corpusFolder.getAbsolutePath()))
-        if (!corpusFolder.isDirectory())
-            throw IllegalArgumentException(String.format("目录 %s 不是一个目录", corpusFolder.getAbsolutePath()))
+        if (!corpusFolder.exists()) throw IllegalArgumentException(String.format("Corpus Tidak Ada", corpusFolder.getAbsolutePath()))
+        if (!corpusFolder.isDirectory()) throw IllegalArgumentException(String.format("Corpus Bukan Folder", corpusFolder.getAbsolutePath()))
         val folders = corpusFolder.listFiles() ?: return
 
+        //loop category dalam corpus
         folders.forEach {
-            var category = it.name
-            if (it.isFile()) return
-            val files = it.listFiles() ?: return
-            files.forEach {
+            if (it.isFile()) throw IllegalArgumentException(String.format("Category Merupakan File", corpusFolder.getAbsolutePath()))
+            val files = it.listFiles() ?: throw IllegalArgumentException(String.format("Folder Kosong", corpusFolder.getAbsolutePath()))
+
+            val category = it.name
+
+            //get random file
+            val randomFiles = List<File>(500) { files[ThreadLocalRandom.current().nextInt(0, files.size)] }
+
+            //loop dataset dalam category
+            randomFiles.forEach {
                 val content = FileUtils.readFileToString(it)
 
-                if (category=="ham"){
-                    if (SpamChecker.predict(classifier, content)=="ham"){
+                if (category == "ham") {
+                    if (SpamChecker.predict(classifier, content) == "ham") {
                         hamHam++
-                    }else{
+                    } else {
                         hamSpam++
                     }
-                }else if (category=="spam"){
-                    if (SpamChecker.predict(classifier, content)=="ham"){
+                } else if (category == "spam") {
+                    if (SpamChecker.predict(classifier, content) == "ham") {
                         spamHam++
-                    }else{
+                    } else {
                         spamSpam++
                     }
                 }
